@@ -10,6 +10,9 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import Common.Define;
 
 public class WebFilter implements Filter {
 
@@ -29,7 +32,11 @@ public class WebFilter implements Filter {
 	public void doFilter(ServletRequest sreq, ServletResponse sres, FilterChain chain) throws IOException, ServletException {
 		HttpServletRequest req = (HttpServletRequest) sreq;
 		HttpServletResponse res = (HttpServletResponse) sres;
-		//HttpSession session = req.getSession();
+		HttpSession session = req.getSession();
+		if (session.getAttribute(Define.USER_SESSION_NAME) != null) {
+			chain.doFilter(req, res);
+			return;
+		}
 		String url = req.getRequestURI();
 		for (String buf : passUrl) {
 			if (buf.equals(url)) {
@@ -37,11 +44,6 @@ public class WebFilter implements Filter {
 				return;
 			}
 		}
-		if ((contextPath + "/data.ajax").equals(url)) {
-			chain.doFilter(req, res);
-			return;
-		}
-		// chain.doFilter(req, res);
 		res.setStatus(403);
 	}
 

@@ -12,7 +12,6 @@ public class Util {
 
 	private final static DateFormat yyyyMMddFormat = new SimpleDateFormat("yyyy/MM/dd");
 	private final static DateFormat dateFormat2 = new SimpleDateFormat("yyyyMMddHHmmss");
-	public static final String COOKIE_KEY = "PrivateFinance";
 
 	public static boolean StringEquals(String val1, String val2) {
 		if (val1 == null) {

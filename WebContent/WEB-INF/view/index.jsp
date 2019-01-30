@@ -18,7 +18,7 @@
 		</form>
 		<div class="form-signin">
 			<div class="login-box">
-				<h3 class="form-signin-heading title">Private Finance</h3>
+				<h3 class="form-signin-heading title">Tistory Editor</h3>
 				<input type="image" id="signButton" src="./img/login.png">
 				<div id="googleSigninButton" style="display:none;"></div>
 			</div>

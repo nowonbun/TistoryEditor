@@ -13,6 +13,6 @@ import Common.AbstractServletController;
 public class MainController extends AbstractServletController {
 	@RequestMapping(value = "/main.html", method = RequestMethod.GET)
 	public String main(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
-		return "index";
+		return "main";
 	}
 }
