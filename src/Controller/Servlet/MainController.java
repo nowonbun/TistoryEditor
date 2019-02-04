@@ -15,4 +15,9 @@ public class MainController extends AbstractServletController {
 	public String main(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
 		return "main";
 	}
+
+	@RequestMapping(value = "/admin.html", method = RequestMethod.GET)
+	public String admin(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
+		return "admin";
+	}
 }

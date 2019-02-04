@@ -1,5 +1,13 @@
 @charset "UTF-8";
 
+html.backstatic{
+	overflow:hidden;
+	position:fixed;
+}
+html.backstatic body{
+	width: calc(100vw);
+}
+
 body {
     margin: 0px;
     padding: 0px;
