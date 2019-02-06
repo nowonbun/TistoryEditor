@@ -1,5 +1,7 @@
 package BlogApi;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executors;
 
 import org.apache.jasper.tagplugins.jstl.core.Url;
@@ -35,12 +37,15 @@ public class BlogApiThread implements Runnable {
 			alive = true;
 			Executors.newSingleThreadExecutor().execute(() -> {
 				try {
-					new Url("https://www.tistory.com/oauth/authorize");
+					Map<String, String> param = new HashMap<>();
+					param.put("client_id", "7d1c7950ebc07c641438b6a5255eddeb");
+					param.put("redirect_uri", "http://localhost:8080/TisoryTest/auth.jsp");
+					
+					BlogApiConnectionBuilder.instance().build("https://www.tistory.com/oauth/authorize", param);
 				} finally {
 					alive = false;
 				}
 			});
 		}
 	}
-
 }
