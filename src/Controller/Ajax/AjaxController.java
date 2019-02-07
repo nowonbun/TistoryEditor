@@ -6,16 +6,14 @@ import javax.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
+import BlogApi.BlogApiThread;
+import Common.AbstractAjaxController;
 
 @Controller
-public class Ajax {
-	@RequestMapping(value = "/data.ajax")
+public class AjaxController extends AbstractAjaxController {
+	@RequestMapping(value = "/sync.ajax")
 	public void ajax(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
-		try {
-			System.out.println("hello wrold");
-			res.getWriter().println("hello world");
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
+		BlogApiThread.instance().run();
+		OKAjax(res);
 	}
 }

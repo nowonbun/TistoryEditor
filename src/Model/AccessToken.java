@@ -17,7 +17,7 @@ public class AccessToken implements Serializable {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createddate;
 
-	private byte isdeleted;
+	private boolean isdeleted;
 
 	@Column(name="TOKEN_KEY")
 	private String tokenKey;
@@ -45,11 +45,11 @@ public class AccessToken implements Serializable {
 		this.createddate = createddate;
 	}
 
-	public byte getIsdeleted() {
+	public boolean getIsdeleted() {
 		return this.isdeleted;
 	}
 
-	public void setIsdeleted(byte isdeleted) {
+	public void setIsdeleted(boolean isdeleted) {
 		this.isdeleted = isdeleted;
 	}
 

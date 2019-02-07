@@ -20,7 +20,7 @@ public class TistoryUser implements Serializable {
 
 	private String id;
 
-	private byte isdeleted;
+	private boolean isdeleted;
 
 	private String userid;
 
@@ -54,11 +54,11 @@ public class TistoryUser implements Serializable {
 		this.id = id;
 	}
 
-	public byte getIsdeleted() {
+	public boolean getIsdeleted() {
 		return this.isdeleted;
 	}
 
-	public void setIsdeleted(byte isdeleted) {
+	public void setIsdeleted(boolean isdeleted) {
 		this.isdeleted = isdeleted;
 	}
 
@@ -78,7 +78,7 @@ public class TistoryUser implements Serializable {
 		this.blogs = blogs;
 	}
 
-	public Blog addTsnBlog(Blog blog) {
+	public Blog addBlog(Blog blog) {
 		getBlogs().add(blog);
 		blog.setTistoryUser(this);
 

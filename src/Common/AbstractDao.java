@@ -10,7 +10,7 @@ import Common.IF.EntityManagerRunable;
 
 public abstract class AbstractDao<T extends Serializable> {
 
-	private static EntityManagerFactory emf = Persistence.createEntityManagerFactory("PrivateFinance");
+	private static EntityManagerFactory emf = Persistence.createEntityManagerFactory("TistoryEditor");
 	private Class<T> clazz;
 
 	protected AbstractDao(Class<T> clazz) {

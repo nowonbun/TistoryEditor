@@ -24,13 +24,13 @@ public class BlogStatistic implements Serializable {
 
 	private int invitation;
 
-	private byte isdeleted;
+	private boolean isdeleted;
 
 	private int post;
 
 	private int trackback;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="BLOG_IDX")
 	private Blog blog;
 
@@ -77,11 +77,11 @@ public class BlogStatistic implements Serializable {
 		this.invitation = invitation;
 	}
 
-	public byte getIsdeleted() {
+	public boolean getIsdeleted() {
 		return this.isdeleted;
 	}
 
-	public void setIsdeleted(byte isdeleted) {
+	public void setIsdeleted(boolean isdeleted) {
 		this.isdeleted = isdeleted;
 	}
 

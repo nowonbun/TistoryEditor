@@ -27,7 +27,7 @@ public class OauthInfo implements Serializable {
 	@Column(name = "GRANT_TYPE")
 	private String grantType;
 
-	private byte isdeleted;
+	private boolean isdeleted;
 
 	@Column(name = "REDIRECT_URL")
 	private String redirectUrl;
@@ -83,11 +83,11 @@ public class OauthInfo implements Serializable {
 		this.grantType = grantType;
 	}
 
-	public byte getIsdeleted() {
+	public boolean getIsdeleted() {
 		return this.isdeleted;
 	}
 
-	public void setIsdeleted(byte isdeleted) {
+	public void setIsdeleted(boolean isdeleted) {
 		this.isdeleted = isdeleted;
 	}
 
@@ -119,11 +119,11 @@ public class OauthInfo implements Serializable {
 		return this.accessTokens;
 	}
 
-	public void setTsnAccessTokens(List<AccessToken> accessTokens) {
+	public void setAccessTokens(List<AccessToken> accessTokens) {
 		this.accessTokens = accessTokens;
 	}
 
-	public AccessToken addTsnAccessToken(AccessToken accessToken) {
+	public AccessToken addAccessToken(AccessToken accessToken) {
 		getAccessTokens().add(accessToken);
 		accessToken.setOauthInfo(this);
 

@@ -12,7 +12,7 @@ public class Blog implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int idx;
 
 	@Column(name = "BLOG_ICON_URL")
@@ -31,7 +31,7 @@ public class Blog implements Serializable {
 	@Column(name = "FAVICON_URL")
 	private String faviconUrl;
 
-	private byte isdeleted;
+	private boolean isdeleted;
 
 	private String name;
 
@@ -56,8 +56,8 @@ public class Blog implements Serializable {
 	@JoinColumn(name = "USER_IDX")
 	private TistoryUser tistoryUser;
 
-	@OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	private List<BlogStatistic> blogStatistics;
+	@OneToOne(mappedBy = "blog", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private BlogStatistic blogStatistic;
 
 	@OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<Category> categories;
@@ -124,11 +124,11 @@ public class Blog implements Serializable {
 		this.faviconUrl = faviconUrl;
 	}
 
-	public byte getIsdeleted() {
+	public boolean getIsdeleted() {
 		return this.isdeleted;
 	}
 
-	public void setIsdeleted(byte isdeleted) {
+	public void setIsdeleted(boolean isdeleted) {
 		this.isdeleted = isdeleted;
 	}
 
@@ -204,26 +204,12 @@ public class Blog implements Serializable {
 		this.tistoryUser = tistoryUser;
 	}
 
-	public List<BlogStatistic> getBlogStatistics() {
-		return this.blogStatistics;
+	public BlogStatistic getBlogStatistic() {
+		return this.blogStatistic;
 	}
 
-	public void setBlogStatistics(List<BlogStatistic> blogStatistics) {
-		this.blogStatistics = blogStatistics;
-	}
-
-	public BlogStatistic addBlogStatistic(BlogStatistic blogStatistic) {
-		getBlogStatistics().add(blogStatistic);
-		blogStatistic.setBlog(this);
-
-		return blogStatistic;
-	}
-
-	public BlogStatistic removeblogStatistic(BlogStatistic blogStatistic) {
-		getBlogStatistics().remove(blogStatistic);
-		blogStatistic.setBlog(null);
-
-		return blogStatistic;
+	public void setBlogStatistic(BlogStatistic blogStatistic) {
+		this.blogStatistic = blogStatistic;
 	}
 
 	public List<Category> getCategories() {
@@ -234,14 +220,14 @@ public class Blog implements Serializable {
 		this.categories = categories;
 	}
 
-	public Category addTsnCategory(Category category) {
+	public Category addCategory(Category category) {
 		getCategories().add(category);
 		category.setBlog(this);
 
 		return category;
 	}
 
-	public Category removeTsnCategory(Category category) {
+	public Category removeCategory(Category category) {
 		getCategories().remove(category);
 		category.setBlog(null);
 

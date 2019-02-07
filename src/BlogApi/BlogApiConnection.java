@@ -1,46 +1,38 @@
 package BlogApi;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.URLConnection;
 
 import javax.net.ssl.HttpsURLConnection;
 
 public class BlogApiConnection {
 	private HttpsURLConnection connection;
-	private byte[] parameter;
-	private String response;
+	private String response = null;
+	private String error = null;
 
-	public BlogApiConnection(URLConnection connection, String parameter) {
+	public BlogApiConnection(URLConnection connection) {
 		this.connection = (HttpsURLConnection) connection;
-		if (parameter != null) {
-			this.parameter = parameter.getBytes();
-		} else {
-			this.parameter = new byte[0];
-		}
 		this.run();
 	}
 
 	private void run() {
 		try {
-			this.connection.setRequestMethod("POST");
-			connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-			connection.setRequestProperty("Content-Length", "" + Integer.toString(parameter.length));
+			this.connection.setRequestMethod("GET");
+			this.connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+			this.connection.setUseCaches(false);
+			this.connection.setDoInput(true);
+			this.connection.setDoOutput(false);
 
-			connection.setUseCaches(false);
-			connection.setDoInput(true);
-			connection.setDoOutput(true);
-
-			try (OutputStream stream = connection.getOutputStream()) {
-				stream.write(parameter, 0, parameter.length);
-			}
-
-			// 
-			try (InputStream is = connection.getInputStream()) {
+			int resCode = connection.getResponseCode();
+			InputStream is = null;
+			try {
+				if (resCode == 200) {
+					is = connection.getInputStream();
+				} else {
+					is = connection.getErrorStream();
+				}
 				try (InputStreamReader rd = new InputStreamReader(is)) {
 					try (BufferedReader br = new BufferedReader(rd)) {
 						String line;
@@ -49,12 +41,28 @@ public class BlogApiConnection {
 							response.append(line);
 							response.append('\r');
 						}
-						this.response = response.toString();
+						if (resCode == 200) {
+							this.response = response.toString();
+						} else {
+							this.error = response.toString();
+						}
 					}
+				}
+			} finally {
+				if (is != null) {
+					is.close();
 				}
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
+	}
+
+	public String getResponse() {
+		return this.response;
+	}
+	
+	public String getError() {
+		return this.error;
 	}
 }

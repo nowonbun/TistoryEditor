@@ -63,6 +63,43 @@ public class JsonConverter {
 		}
 	}
 
+	public static boolean JsonStringIsEmptyOrNull(JsonObject jsonobj, String key) {
+		return !JsonIsKey(jsonobj, key) || Util.StringIsEmptyOrNull(jsonobj.getString(key));
+	}
+
+	public static boolean JsonIsKey(JsonObject jsonobj, String key) {
+		return jsonobj.keySet().contains(key) && !jsonobj.isNull(key);
+	}
+
+	public static String JsonString(JsonObject jsonobj, String key) {
+		if (JsonIsKey(jsonobj, key)) {
+			return jsonobj.getString(key);
+		}
+		return null;
+	}
+
+	public static Boolean JsonBoolean(JsonObject jsonobj, String key) {
+		if (JsonIsKey(jsonobj, key)) {
+			return jsonobj.getBoolean(key);
+		}
+		return null;
+	}
+
+	public static byte[] JsonBytes(JsonObject jsonobj, String key) {
+		String ret = JsonString(jsonobj, key);
+		if (ret == null) {
+			return null;
+		}
+		return ret.getBytes();
+	}
+
+	public static Integer JsonInteger(JsonObject jsonobj, String key) {
+		if (JsonIsKey(jsonobj, key)) {
+			return jsonobj.getInt(key);
+		}
+		return null;
+	}
+
 	private static JsonConverter instance = null;
 
 	private JsonConverter() {

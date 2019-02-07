@@ -22,4 +22,19 @@ public class OauthInfoDao extends TransactionDao<OauthInfo> {
 			}
 		});
 	}
+
+	public OauthInfo getOauthInfo(String clientId, String clientSecret, String redirectUrl) {
+		return transaction((em) -> {
+			try {
+				String qy = "SELECT o FROM OauthInfo o WHERE o.clientId = :clientId AND o.clientSecret = :clientSecret AND o.redirectUrl = :redirectUrl AND o.isdeleted = false";
+				Query query = em.createQuery(qy);
+				query.setParameter("clientId", clientId);
+				query.setParameter("clientSecret", clientSecret);
+				query.setParameter("redirectUrl", redirectUrl);
+				return (OauthInfo) query.getSingleResult();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
 }

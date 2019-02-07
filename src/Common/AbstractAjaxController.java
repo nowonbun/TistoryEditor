@@ -2,6 +2,8 @@ package Common;
 
 import javax.servlet.http.HttpServletResponse;
 
+import Bean.ObjectBean;
+
 public abstract class AbstractAjaxController extends AbstractController {
 
 	protected void returnAjax(HttpServletResponse res, Object data) {
@@ -15,5 +17,11 @@ public abstract class AbstractAjaxController extends AbstractController {
 			e.printStackTrace();
 			//getLogger().error(e);
 		}
+	}
+	
+	protected void OKAjax(HttpServletResponse res) {
+		ObjectBean bean = new ObjectBean();
+		bean.setRet(true);
+		returnAjax(res, bean);
 	}
 }

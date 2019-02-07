@@ -23,7 +23,7 @@ public class Category implements Serializable {
 
 	private String entries;
 
-	private byte isdeleted;
+	private boolean isdeleted;
 
 	@Column(name = "`LABEL`")
 	private String label;
@@ -74,11 +74,11 @@ public class Category implements Serializable {
 		this.entries = entries;
 	}
 
-	public byte getIsdeleted() {
+	public boolean getIsdeleted() {
 		return this.isdeleted;
 	}
 
-	public void setIsdeleted(byte isdeleted) {
+	public void setIsdeleted(boolean isdeleted) {
 		this.isdeleted = isdeleted;
 	}
 

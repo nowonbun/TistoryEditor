@@ -26,7 +26,9 @@ public class Post implements Serializable {
 
 	private Timestamp date;
 
-	private byte isdeleted;
+	private boolean isdeleted;
+
+	private boolean ismodified;
 
 	@Column(name = "POST_ID")
 	private String postId;
@@ -94,12 +96,20 @@ public class Post implements Serializable {
 		this.date = date;
 	}
 
-	public byte getIsdeleted() {
+	public boolean getIsdeleted() {
 		return this.isdeleted;
 	}
 
-	public void setIsdeleted(byte isdeleted) {
+	public void setIsdeleted(boolean isdeleted) {
 		this.isdeleted = isdeleted;
+	}
+
+	public boolean getIsmodified() {
+		return this.ismodified;
+	}
+
+	public void setIsmodified(boolean ismodified) {
+		this.ismodified = ismodified;
 	}
 
 	public String getPostId() {

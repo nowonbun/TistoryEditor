@@ -1,14 +1,11 @@
 package BlogApi;
-
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.URL;
 import java.util.Map;
+
+import Common.PropertyMap;
+import Common.Util;
 
 public class BlogApiConnectionBuilder {
 	private static BlogApiConnectionBuilder singleton = null;
@@ -33,8 +30,13 @@ public class BlogApiConnectionBuilder {
 		}
 
 		try {
-			URL obj = new URL(url);
-			return new BlogApiConnection(obj.openConnection(), param);
+			URL obj = new URL(url + "?" + param);
+			String proxy = PropertyMap.getInstance().getProperty("config", "proxy");
+			int port = PropertyMap.getInstance().getPropertyInt("config", "proxy_port");
+			if (Util.StringIsEmptyOrNull(proxy)) {
+				return new BlogApiConnection(obj.openConnection());
+			}
+			return new BlogApiConnection(obj.openConnection(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxy, port))));
 		} catch (Throwable e) {
 			e.printStackTrace();
 			return null;

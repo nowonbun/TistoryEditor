@@ -1,4 +1,5 @@
 package Controller.Servlet;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -16,21 +17,18 @@ import Common.Util;
 public class LoginController extends AbstractServletController {
 	@RequestMapping(value = "/index.html", method = RequestMethod.GET)
 	public String index(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
-		if(super.getCurrentUser(session) != null) {
+		if (super.getCurrentUser(session) != null) {
 			return redirect("main.html");
 		}
-		//TODO: If have not the cookie key of database, this is not able to cookie auth.
-		/*Cookie cookie = getCookie(req, Define.COOKIE_KEY);
-		if (cookie != null) {
-			String key = cookie.getValue();
-			if (loginCookie != null) {
-				session.setAttribute(Define.USER_SESSION_NAME, loginCookie.getUser());
-				return "redirect:main.html";
-			}
-			cookie.setPath(Util.getCookiePath());
-			cookie.setMaxAge(0);
-			res.addCookie(cookie);
-		}*/
+		// TODO: If have not the cookie key of database, this is not able to cookie
+		// auth.
+		/*
+		 * Cookie cookie = getCookie(req, Define.COOKIE_KEY); if (cookie != null) {
+		 * String key = cookie.getValue(); if (loginCookie != null) {
+		 * session.setAttribute(Define.USER_SESSION_NAME, loginCookie.getUser()); return
+		 * "redirect:main.html"; } cookie.setPath(Util.getCookiePath());
+		 * cookie.setMaxAge(0); res.addCookie(cookie); }
+		 */
 		return "index";
 	}
 
@@ -40,7 +38,7 @@ public class LoginController extends AbstractServletController {
 		String pEmail = req.getParameter("email");
 		String id = PropertyMap.getInstance().getProperty("config", "id");
 		String email = PropertyMap.getInstance().getProperty("config", "email");
-		if(Util.StringEquals(id, pId) && Util.StringEquals(email, pEmail)) {
+		if ((Util.StringEquals(id, pId) && Util.StringEquals(email, pEmail)) || (Util.StringIsEmptyOrNull(id) && Util.StringIsEmptyOrNull(email))) {
 			UserBean user = new UserBean();
 			user.setId(pId);
 			user.setEmail(pEmail);
