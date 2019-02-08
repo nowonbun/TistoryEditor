@@ -24,7 +24,8 @@ public class Post implements Serializable {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createddate;
 
-	private Timestamp date;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date date;
 
 	private boolean isdeleted;
 
@@ -88,11 +89,11 @@ public class Post implements Serializable {
 		this.createddate = createddate;
 	}
 
-	public Timestamp getDate() {
+	public Date getDate() {
 		return this.date;
 	}
 
-	public void setDate(Timestamp date) {
+	public void setDate(Date date) {
 		this.date = date;
 	}
 

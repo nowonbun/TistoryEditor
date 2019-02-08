@@ -26,7 +26,7 @@ public class TistoryUserDao extends TransactionDao<TistoryUser> {
 	public TistoryUser getTistoryUser(String id, String userid) {
 		return transaction((em) -> {
 			try {
-				String qy = "SELECT u FROM TistoryUser u WHERE u.id = :id AND u.userid = :userid AND u.isdeleted = false";
+				String qy = "SELECT u FROM TistoryUser u WHERE u.id = :id AND u.userid = :userid";
 				Query query = em.createQuery(qy);
 				query.setParameter("id", id);
 				query.setParameter("userid", userid);
@@ -34,6 +34,14 @@ public class TistoryUserDao extends TransactionDao<TistoryUser> {
 			} catch (NoResultException e) {
 				return null;
 			}
+		});
+	}
+
+	public void deleteAll() {
+		transaction((em) -> {
+			String qy = "UPDATE TistoryUser SET isdeleted = true";
+			Query query = em.createQuery(qy);
+			query.executeUpdate();
 		});
 	}
 }

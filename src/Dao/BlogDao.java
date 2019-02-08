@@ -22,4 +22,12 @@ public class BlogDao extends TransactionDao<Blog> {
 			}
 		});
 	}
+
+	public void deleteAll() {
+		transaction((em) -> {
+			String qy = "UPDATE Blog SET isdeleted = true";
+			Query query = em.createQuery(qy);
+			query.executeUpdate();
+		});
+	}
 }

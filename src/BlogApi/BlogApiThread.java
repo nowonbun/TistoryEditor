@@ -1,26 +1,32 @@
 package BlogApi;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
-
 import javax.json.JsonObject;
-
 import Common.FactoryDao;
 import Common.JsonConverter;
 import Common.PropertyMap;
 import Common.Util;
 import Common.IF.ActionExpression;
+import Dao.BlogDao;
+import Dao.BlogStatisticDao;
+import Dao.CategoryDao;
 import Dao.OauthInfoDao;
+import Dao.PostDao;
 import Dao.TistoryUserDao;
 import Model.AccessToken;
 import Model.Blog;
 import Model.BlogStatistic;
 import Model.Category;
 import Model.OauthInfo;
+import Model.Post;
 import Model.TistoryUser;
 
 public class BlogApiThread implements Runnable {
@@ -56,6 +62,12 @@ public class BlogApiThread implements Runnable {
 	@Override
 	public void run() {
 		if (status == BlogStatus.wait && code != null && type != null) {
+			status = BlogStatus.init;
+			FactoryDao.getDao(TistoryUserDao.class).deleteAll();
+			FactoryDao.getDao(BlogDao.class).deleteAll();
+			FactoryDao.getDao(BlogStatisticDao.class).deleteAll();
+			FactoryDao.getDao(CategoryDao.class).deleteAll();
+			FactoryDao.getDao(PostDao.class).deleteAll();
 			status = BlogStatus.start;
 			Executors.newSingleThreadExecutor().execute(() -> {
 				try {
@@ -139,14 +151,23 @@ public class BlogApiThread implements Runnable {
 	}
 
 	private void pull(String token) {
+		TistoryUser tuser = getBlog(token);
+		getCategory(tuser, token);
+		getPostList(tuser, token);
+		getPost(tuser, token);
+		FactoryDao.getDao(TistoryUserDao.class).update(tuser);
+	}
+
+	private TistoryUser getBlog(String token) {
+		this.status = BlogStatus.blog;
 		final List<TistoryUser> memBuffer = new ArrayList<>(1);
 		parameterBuffer.clear();
 		parameterBuffer.put("access_token", token);
 		parameterBuffer.put("output", "json");
 		BlogApiConnection connection = BlogApiConnectionBuilder.instance().build("https://www.tistory.com/apis/blog/info", parameterBuffer);
 		if (connection.getResponse() == null) {
-			status = BlogStatus.error;
-			return;
+			this.status = BlogStatus.error;
+			return null;
 		}
 		defaultJsonStructor(connection.getResponse(), obj1 -> {
 			String id = JsonConverter.JsonString(obj1, "id");
@@ -224,45 +245,178 @@ public class BlogApiThread implements Runnable {
 			tuser.setIsdeleted(false);
 			memBuffer.add(tuser);
 		});
-		status = BlogStatus.blog;
-		for (Blog blog : memBuffer.get(0).getBlogs()) {
+
+		return memBuffer.remove(0);
+	}
+
+	private TistoryUser getCategory(TistoryUser tuser, String token) {
+		this.status = BlogStatus.category;
+		for (Blog blog : tuser.getBlogs()) {
 			parameterBuffer.clear();
 			parameterBuffer.put("access_token", token);
 			parameterBuffer.put("output", "json");
 			parameterBuffer.put("blogName", blog.getName());
-			connection = BlogApiConnectionBuilder.instance().build("https://www.tistory.com/apis/category/list", parameterBuffer);
+			BlogApiConnection connection = BlogApiConnectionBuilder.instance().build("https://www.tistory.com/apis/category/list", parameterBuffer);
 			if (connection.getResponse() == null) {
 				continue;
 			}
 			if (blog.getCategories() == null) {
 				blog.setCategories(new ArrayList<>());
 			}
+
+			// category
 			defaultJsonStructor(connection.getResponse(), obj1 -> {
-				String id = JsonConverter.JsonString(obj1, "id");
-				if(id == null) {
+				if (!JsonConverter.JsonIsKey(obj1, "categories")) {
 					return;
 				}
-				Category category = null;
-				for (Category c : blog.getCategories()) {
-					if (Util.StringEquals(c.getCategoryId(), id)) {
-						category = c;
-						break;
-					}
-				}
-				if (category == null) {
-					category = new Category();
-					category.setCreateddate(new Date());
-					category.setBlog(blog);
-					blog.addCategory(category);
-					category.setCategoryId(id);
-				}
-				category.setIsdeleted(false);
-				category.setParent(JsonConverter.JsonString(obj1, "parent"));
-				category.setLabel(JsonConverter.JsonString(obj1, "label"));
-				category.setEntries(JsonConverter.JsonString(obj1, "entries"));
-				//TODO: it can not insert the category data.
+				JsonConverter.parseArray(obj1.get("categories").toString(), obj2 -> {
+					obj2.forEach(obj3 -> {
+						JsonConverter.parseObject(obj3.toString(), obj4 -> {
+							String id = JsonConverter.JsonString(obj4, "id");
+							if (id == null) {
+								return;
+							}
+							Category category = null;
+							for (Category c : blog.getCategories()) {
+								if (Util.StringEquals(c.getCategoryId(), id)) {
+									category = c;
+									break;
+								}
+							}
+							if (category == null) {
+								category = new Category();
+								category.setCreateddate(new Date());
+								category.setBlog(blog);
+								blog.addCategory(category);
+								category.setCategoryId(id);
+							}
+							category.setIsdeleted(false);
+							category.setName(JsonConverter.JsonString(obj4, "name"));
+							category.setParent(JsonConverter.JsonString(obj4, "parent"));
+							category.setLabel(JsonConverter.JsonString(obj4, "label"));
+							category.setEntries(JsonConverter.JsonString(obj4, "entries"));
+						});
+					});
+				});
 			});
 		}
-		FactoryDao.getDao(TistoryUserDao.class).update(memBuffer.get(0));
+		return tuser;
+	}
+
+	public static final DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+	private TistoryUser getPostList(TistoryUser tuser, String token) {
+		this.status = BlogStatus.postlist;
+		for (Blog blog : tuser.getBlogs()) {
+			int page = 0;
+			final List<Boolean> continueMem = new ArrayList<>(1);
+			continueMem.add(true);
+			while (continueMem.get(0)) {
+				page++;
+				parameterBuffer.clear();
+				parameterBuffer.put("access_token", token);
+				parameterBuffer.put("output", "json");
+				parameterBuffer.put("blogName", blog.getName());
+				parameterBuffer.put("page", String.valueOf(page));
+				BlogApiConnection connection = BlogApiConnectionBuilder.instance().build("https://www.tistory.com/apis/post/list", parameterBuffer);
+				if (connection.getResponse() == null) {
+					continue;
+				}
+				if (blog.getPosts() == null) {
+					blog.setPosts(new ArrayList<>());
+				}
+				defaultJsonStructor(connection.getResponse(), obj1 -> {
+					if (!JsonConverter.JsonIsKey(obj1, "posts")) {
+						continueMem.clear();
+						continueMem.add(false);
+						return;
+					}
+					JsonConverter.parseArray(obj1.get("posts").toString(), obj2 -> {
+						obj2.forEach(obj3 -> {
+							JsonConverter.parseObject(obj3.toString(), obj4 -> {
+								String id = JsonConverter.JsonString(obj4, "id");
+								if (id == null) {
+									return;
+								}
+
+								Post post = null;
+								for (Post p : blog.getPosts()) {
+									if (Util.StringEquals(p.getPostId(), id)) {
+										post = p;
+										break;
+									}
+								}
+								if (post == null) {
+									post = new Post();
+									post.setCreateddate(new Date());
+									post.setBlog(blog);
+									blog.addPost(post);
+									post.setPostId(id);
+								} else {
+									if (post.getIsmodified()) {
+										return;
+									}
+								}
+								post.setIsdeleted(false);
+								String categoryId = JsonConverter.JsonString(obj4, "categoryId");
+								if (categoryId != null) {
+									post.setCategoryId(categoryId);
+									for (Category c : blog.getCategories()) {
+										if (Util.StringEqualsUpper(c.getCategoryId(), categoryId)) {
+											post.setCategory(c);
+										}
+									}
+								}
+								post.setTitle(JsonConverter.JsonString(obj4, "title"));
+								post.setPostUrl(JsonConverter.JsonString(obj4, "postUrl"));
+								String date = JsonConverter.JsonString(obj4, "date");
+								try {
+									post.setDate(formatter.parse(date));
+								} catch (ParseException e) {
+									e.printStackTrace();
+								}
+							});
+						});
+					});
+				});
+			}
+		}
+
+		return tuser;
+	}
+
+	private TistoryUser getPost(TistoryUser tuser, String token) {
+		this.status = BlogStatus.post;
+		for (Blog blog : tuser.getBlogs()) {
+			for (Post post : blog.getPosts()) {
+				if (post.getIsdeleted()) {
+					continue;
+				}
+				if (post.getIsmodified()) {
+					continue;
+				}
+				parameterBuffer.clear();
+				parameterBuffer.put("access_token", token);
+				parameterBuffer.put("output", "json");
+				parameterBuffer.put("blogName", blog.getName());
+				parameterBuffer.put("postId", post.getPostId());
+				BlogApiConnection connection = BlogApiConnectionBuilder.instance().build("https://www.tistory.com/apis/post/read", parameterBuffer);
+				defaultJsonStructor(connection.getResponse(), obj1 -> {
+					post.setUrl(JsonConverter.JsonString(obj1, "url"));
+					post.setSecondaryUrl(JsonConverter.JsonString(obj1, "secondaryUrl"));
+					post.setTitle(JsonConverter.JsonString(obj1, "title"));
+					// contents
+					post.setPostUrl(JsonConverter.JsonString(obj1, "postUrl"));
+					String date = JsonConverter.JsonString(obj1, "date");
+					try {
+						post.setDate(formatter.parse(date));
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+					post.setTags(JsonConverter.JsonString(obj1, "tags"));
+				});
+			}
+		}
+		return tuser;
 	}
 }

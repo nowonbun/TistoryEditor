@@ -22,4 +22,12 @@ public class CategoryDao extends TransactionDao<Category> {
 			}
 		});
 	}
+
+	public void deleteAll() {
+		transaction((em) -> {
+			String qy = "UPDATE Category SET isdeleted = true";
+			Query query = em.createQuery(qy);
+			query.executeUpdate();
+		});
+	}
 }

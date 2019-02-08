@@ -22,4 +22,12 @@ public class PostDao extends TransactionDao<Post> {
 			}
 		});
 	}
+
+	public void deleteAll() {
+		transaction((em) -> {
+			String qy = "UPDATE Post SET isdeleted = true";
+			Query query = em.createQuery(qy);
+			query.executeUpdate();
+		});
+	}
 }
