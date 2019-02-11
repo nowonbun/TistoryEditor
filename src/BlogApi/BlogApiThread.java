@@ -1,5 +1,9 @@
 package BlogApi;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -10,6 +14,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import javax.json.JsonObject;
+
+import org.apache.tomcat.jni.Directory;
+
 import Common.FactoryDao;
 import Common.JsonConverter;
 import Common.PropertyMap;
@@ -386,6 +393,11 @@ public class BlogApiThread implements Runnable {
 	}
 
 	private TistoryUser getPost(TistoryUser tuser, String token) {
+		String path = PropertyMap.getInstance().getProperty("config", "contents_path");
+		File dir = new File(path);
+		if (!(dir.exists() && dir.isDirectory())) {
+			dir.mkdir();
+		}
 		this.status = BlogStatus.post;
 		for (Blog blog : tuser.getBlogs()) {
 			for (Post post : blog.getPosts()) {
@@ -402,10 +414,19 @@ public class BlogApiThread implements Runnable {
 				parameterBuffer.put("postId", post.getPostId());
 				BlogApiConnection connection = BlogApiConnectionBuilder.instance().build("https://www.tistory.com/apis/post/read", parameterBuffer);
 				defaultJsonStructor(connection.getResponse(), obj1 -> {
+					// contents
+					String filepath = path + File.separator + Util.createCookieKey();
+					String contents = JsonConverter.JsonString(obj1, "content");
+					try (FileOutputStream stream = new FileOutputStream(filepath)) {
+						stream.write(contents.getBytes("UTF-8"));
+					} catch (Throwable e) {
+						e.printStackTrace();
+						return;
+					}
 					post.setUrl(JsonConverter.JsonString(obj1, "url"));
 					post.setSecondaryUrl(JsonConverter.JsonString(obj1, "secondaryUrl"));
 					post.setTitle(JsonConverter.JsonString(obj1, "title"));
-					// contents
+					post.setContentsPath(filepath);
 					post.setPostUrl(JsonConverter.JsonString(obj1, "postUrl"));
 					String date = JsonConverter.JsonString(obj1, "date");
 					try {
@@ -413,7 +434,7 @@ public class BlogApiThread implements Runnable {
 					} catch (ParseException e) {
 						e.printStackTrace();
 					}
-					post.setTags(JsonConverter.JsonString(obj1, "tags"));
+					post.setTags(obj1.get("tags").toString());
 				});
 			}
 		}
