@@ -3,7 +3,6 @@ package Model;
 import java.io.Serializable;
 import javax.persistence.*;
 import java.util.Date;
-import java.sql.Timestamp;
 
 @Entity
 @Table(name = "tsn_post")

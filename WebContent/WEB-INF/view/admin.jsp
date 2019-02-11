@@ -92,6 +92,44 @@ hello world
 				_$.sync.start();
 			});*/
 		},
+		sync : {
+			status:[
+				"wait",
+				"init",
+				"start",
+				"token",
+				"blog",
+				"category",
+				"postlist",
+				"post",
+				"complate",
+				"error"
+			],
+			ajax : function(url, data, cb) {
+				$.ajax({
+					url : url,
+					type : "POST",
+					dataType : "json",
+					data : data,
+					success : function(data, textStatus, jqXHR) {
+						cb.call(this, data);
+					},
+					error : function(jqXHR, textStatus, errorThrown) {
+						console.log(jqXHR);
+						console.log(errorThrown);
+						toastr.error("system error!");
+					},
+					complete : function(jqXHR, textStatus) {
+
+					}
+				});
+			},
+			getStatus: function(){
+				_$.sync.ajax("./syncStatus.ajax",null,function(data){
+					console.log(data.ret);
+				});
+			}
+		}
 		/*sync : {
 			ajax : function(url, data, cb) {
 				$.ajax({

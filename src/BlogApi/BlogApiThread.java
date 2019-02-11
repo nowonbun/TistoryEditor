@@ -2,8 +2,6 @@ package BlogApi;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,9 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import javax.json.JsonObject;
-
-import org.apache.tomcat.jni.Directory;
-
 import Common.FactoryDao;
 import Common.JsonConverter;
 import Common.PropertyMap;

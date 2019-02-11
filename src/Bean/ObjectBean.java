@@ -11,4 +11,11 @@ public class ObjectBean {
 		this.ret = ret;
 	}
 
+	public ObjectBean() {
+
+	}
+
+	public ObjectBean(Object ret) {
+		this.ret = ret;
+	}
 }
