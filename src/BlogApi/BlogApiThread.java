@@ -165,8 +165,16 @@ public class BlogApiThread implements Runnable {
 	}
 
 	private void setCount(int index, int count) {
-		countBuffer.set(1, count);
-		countBuffer.set(0, index);
+		if (countBuffer.size() < 1) {
+			countBuffer.add(0, index);
+		} else {
+			countBuffer.set(0, index);
+		}
+		if (countBuffer.size() < 2) {
+			countBuffer.add(1, count);
+		} else {
+			countBuffer.set(1, count);
+		}
 	}
 
 	private void pull(String token) {
@@ -438,7 +446,16 @@ public class BlogApiThread implements Runnable {
 				BlogApiConnection connection = BlogApiConnectionBuilder.instance().build("https://www.tistory.com/apis/post/read", parameterBuffer);
 				defaultJsonStructor(connection.getResponse(), obj1 -> {
 					// contents
-					String filepath = path + File.separator + Util.createCookieKey();
+					String filepath = "";
+					if (Util.StringIsEmptyOrNull(post.getContentsPath())) {
+						filepath = path + File.separator + Util.createCookieKey();
+					} else {
+						filepath = post.getContentsPath();
+						File file = new File(filepath);
+						if(file.exists()) {
+							file.delete();
+						}
+					}
 					String contents = JsonConverter.JsonString(obj1, "content");
 					try (FileOutputStream stream = new FileOutputStream(filepath)) {
 						stream.write(contents.getBytes("UTF-8"));

@@ -50,7 +50,7 @@ div.row>div {
 </style>
 <div class="row">
 	<div class="col-xs-12 col-sm-6 col-md-3">
-		<div class="card bg-success pull-btn">
+		<div class="card bg-success pull-btn card-btn">
 			<div class="header">
 				<i class="glyphicon glyphicon-refresh"></i>
 			</div>
@@ -60,7 +60,7 @@ div.row>div {
 		</div>
 	</div>
 	<div class="col-xs-12 col-sm-6 col-md-3">
-		<div class="card bg-success push-btn">
+		<div class="card bg-success push-btn card-btn">
 			<div class="header">
 				<i class="glyphicon glyphicon-refresh"></i>
 			</div>
@@ -87,24 +87,13 @@ hello world
 			$(".pull-btn").on("click", function() {
 				window.location.href="./syncstart.auth?type=pull";
 			});
+			_$.sync.getStatus();
 			//$(".syc-progress").html("Ready...");
 			/*$(".syn-btn").on("click", function() {
 				_$.sync.start();
 			});*/
 		},
 		sync : {
-			status:[
-				"wait",
-				"init",
-				"start",
-				"token",
-				"blog",
-				"category",
-				"postlist",
-				"post",
-				"complate",
-				"error"
-			],
 			ajax : function(url, data, cb) {
 				$.ajax({
 					url : url,
@@ -126,7 +115,9 @@ hello world
 			},
 			getStatus: function(){
 				_$.sync.ajax("./syncStatus.ajax",null,function(data){
-					console.log(data.ret);
+					if(data.state !== "wait"){
+						$(".card-btn").addClass("disabled");
+					}
 				});
 			}
 		}

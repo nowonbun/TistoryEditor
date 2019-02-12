@@ -6,7 +6,7 @@ import javax.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
-import Bean.ObjectBean;
+import Bean.SyncStateBean;
 import BlogApi.BlogApiThread;
 import Common.AbstractAjaxController;
 
@@ -20,6 +20,9 @@ public class AjaxController extends AbstractAjaxController {
 
 	@RequestMapping(value = "/syncStatus.ajax")
 	public void syncStatus(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
-		returnJson(res, new ObjectBean(BlogApiThread.status().toString()));
+		SyncStateBean bean = new SyncStateBean();
+		bean.setState(BlogApiThread.status().toString());
+		bean.setMessgae(BlogApiThread.message());
+		returnJson(res, bean);
 	}
 }
