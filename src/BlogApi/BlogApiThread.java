@@ -34,12 +34,14 @@ import Model.TistoryUser;
 public class BlogApiThread implements Runnable {
 	private static BlogApiThread singleton = null;
 	private BlogStatus status = BlogStatus.wait;
+	private String message = "";
 	private BlogSyncType type = null;
 	private String code;
 	private final Map<String, String> parameterBuffer = new HashMap<>();
+	private final List<Integer> countBuffer = new ArrayList<>(2);
 
 	private BlogApiThread() {
-
+		setCount(0, 0);
 	}
 
 	public static BlogApiThread instance() {
@@ -61,15 +63,24 @@ public class BlogApiThread implements Runnable {
 		return BlogApiThread.instance().status;
 	}
 
+	public static String message() {
+		return BlogApiThread.instance().message;
+	}
+
 	@Override
 	public void run() {
 		if (status == BlogStatus.wait && code != null && type != null) {
 			status = BlogStatus.init;
 			FactoryDao.getDao(TistoryUserDao.class).deleteAll();
+			this.message = "The tisotryuser table was initialize.";
 			FactoryDao.getDao(BlogDao.class).deleteAll();
+			this.message = "The blog table was initialize.";
 			FactoryDao.getDao(BlogStatisticDao.class).deleteAll();
+			this.message = "The blogstatistic table was initialize.";
 			FactoryDao.getDao(CategoryDao.class).deleteAll();
+			this.message = "The category table was initialize.";
 			FactoryDao.getDao(PostDao.class).deleteAll();
+			this.message = "The post table was initialize.";
 			status = BlogStatus.start;
 			Executors.newSingleThreadExecutor().execute(() -> {
 				try {
@@ -86,6 +97,7 @@ public class BlogApiThread implements Runnable {
 					String access_token = connection.getResponse().replace("access_token=", "").replace("\r", "").replace("\n", "");
 					if (Util.StringIsEmptyOrNull(access_token)) {
 						status = BlogStatus.error;
+						this.message = "It's failed that get the access_token from tistory.";
 						return;
 					}
 
@@ -120,7 +132,7 @@ public class BlogApiThread implements Runnable {
 					token.setIsdeleted(false);
 					token.setCreateddate(new Date());
 					FactoryDao.getDao(OauthInfoDao.class).update(entity);
-
+					this.message = "The oauthInfo table was updated.";
 					status = BlogStatus.token;
 					if (type == BlogSyncType.pull) {
 						pull(access_token);
@@ -152,6 +164,11 @@ public class BlogApiThread implements Runnable {
 		});
 	}
 
+	private void setCount(int index, int count) {
+		countBuffer.set(1, count);
+		countBuffer.set(0, index);
+	}
+
 	private void pull(String token) {
 		TistoryUser tuser = getBlog(token);
 		getCategory(tuser, token);
@@ -169,6 +186,7 @@ public class BlogApiThread implements Runnable {
 		BlogApiConnection connection = BlogApiConnectionBuilder.instance().build("https://www.tistory.com/apis/blog/info", parameterBuffer);
 		if (connection.getResponse() == null) {
 			this.status = BlogStatus.error;
+			this.message = "It's failed that get the blog info from tistory.";
 			return null;
 		}
 		defaultJsonStructor(connection.getResponse(), obj1 -> {
@@ -192,7 +210,10 @@ public class BlogApiThread implements Runnable {
 
 			final TistoryUser tUserMem = tuser;
 			JsonConverter.parseArray(obj1.get("blogs").toString(), obj2 -> {
+				setCount(1, obj2.size());
 				obj2.forEach(obj3 -> {
+					this.message = "The blog progress " + countBuffer.get(0) + "/" + countBuffer.get(1);
+					setCount(countBuffer.get(0) + 1, countBuffer.get(1));
 					JsonConverter.parseObject(obj3.toString(), obj4 -> {
 						if (JsonConverter.JsonStringIsEmptyOrNull(obj4, "name")) {
 							return;
@@ -272,7 +293,10 @@ public class BlogApiThread implements Runnable {
 					return;
 				}
 				JsonConverter.parseArray(obj1.get("categories").toString(), obj2 -> {
+					setCount(1, obj2.size());
 					obj2.forEach(obj3 -> {
+						this.message = "The category progress " + countBuffer.get(0) + "/" + countBuffer.get(1);
+						setCount(countBuffer.get(0) + 1, countBuffer.get(1));
 						JsonConverter.parseObject(obj3.toString(), obj4 -> {
 							String id = JsonConverter.JsonString(obj4, "id");
 							if (id == null) {
@@ -309,6 +333,7 @@ public class BlogApiThread implements Runnable {
 
 	private TistoryUser getPostList(TistoryUser tuser, String token) {
 		this.status = BlogStatus.postlist;
+		this.message = "The blog list is getting.";
 		for (Blog blog : tuser.getBlogs()) {
 			int page = 0;
 			final List<Boolean> continueMem = new ArrayList<>(1);
@@ -395,7 +420,10 @@ public class BlogApiThread implements Runnable {
 		}
 		this.status = BlogStatus.post;
 		for (Blog blog : tuser.getBlogs()) {
+			setCount(1, blog.getPosts().size());
 			for (Post post : blog.getPosts()) {
+				this.message = "The post progress " + countBuffer.get(0) + "/" + countBuffer.get(1);
+				setCount(countBuffer.get(0) + 1, countBuffer.get(1));
 				if (post.getIsdeleted()) {
 					continue;
 				}
