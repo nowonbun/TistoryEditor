@@ -75,7 +75,19 @@ div.row>div {
 		</div>
 	</div-->
 </div>
-hello world
+<div class="row">
+	<div class="col-xs-12 col-sm-6">
+		<input type="text" class="form-control" readonly="readonly" id="status">
+	</div>
+</div>
+<div class="row">
+	<div class="col-xs-12 col-sm-6">
+		<div class="input-group">
+			<span class="input-group-addon">Last updated time</span>
+			<input id="timestamp" class="form-control" readonly="readonly">
+		</div>
+	</div>
+</div>
 <jsp:include page="./particle/bottom.jsp"></jsp:include>
 <script>
 	var buffering = 0;
@@ -85,7 +97,9 @@ hello world
 	})({
 		onLoad : function() {
 			$(".pull-btn").on("click", function() {
-				window.location.href="./syncstart.auth?type=pull";
+				if(!$(".card-btn").hasClass("disabled")){
+					window.location.href="./syncstart.auth?type=pull";	
+				}
 			});
 			_$.sync.getStatus();
 			//$(".syc-progress").html("Ready...");
@@ -118,6 +132,11 @@ hello world
 					if(data.state !== "wait"){
 						$(".card-btn").addClass("disabled");
 					}
+					$("#status").val(data.state);
+					$("#timestamp").val(moment(new Date).format("YYYY-MM-DD HH:mm:ss"));
+					setTimeout(function(){
+						_$.sync.getStatus();			
+					},500);
 				});
 			}
 		}
