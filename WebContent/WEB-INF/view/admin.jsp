@@ -9,6 +9,10 @@
 	font-size: 2.5rem;
 	box-shadow: 2px 4px 8px #cecece;
 }
+.card.disabled{
+	background-color: #b9b9b9;
+	border: 1px solid #b9b9b9;
+}
 
 .progress {
 	height: 7.5rem;
@@ -34,12 +38,12 @@
 	font-weight: 600;
 }
 
-.card:hover:not(.start ){
+.card:hover:not(.disabled){
 	cursor: pointer;
 	box-shadow: 4px 8px 16px #cecece;
 }
 
-.card:hover:not(.start ) .glyphicon-refresh {
+.card:hover:not(.disabled) .glyphicon-refresh {
 	-webkit-animation: fa-spin 2s infinite linear;
 	animation: fa-spin 2s infinite linear;
 }
@@ -91,20 +95,26 @@ div.row>div {
 <jsp:include page="./particle/bottom.jsp"></jsp:include>
 <script>
 	var buffering = 0;
-	var _$ = (function(obj) {
+	var _admin$ = (function(obj) {
+		obj.init();
 		$(obj.onLoad)
 		return obj;
 	})({
-		onLoad : function() {
+		isRunning : false,
+		init : function() {
 			$(".pull-btn").on("click", function() {
-				if(!$(".card-btn").hasClass("disabled")){
-					window.location.href="./syncstart.auth?type=pull";	
+				if (!$(".card-btn").hasClass("disabled")) {
+					window.location.href = "./syncstart.auth?type=pull";
+				} else {
+					//toastr.error('The sync is running!', 'Sync error');
 				}
 			});
-			_$.sync.getStatus();
+		},
+		onLoad : function() {
+			_admin$.sync.getStatus();
 			//$(".syc-progress").html("Ready...");
 			/*$(".syn-btn").on("click", function() {
-				_$.sync.start();
+				_admin$.sync.start();
 			});*/
 		},
 		sync : {
@@ -127,67 +137,75 @@ div.row>div {
 					}
 				});
 			},
-			getStatus: function(){
-				_$.sync.ajax("./syncStatus.ajax",null,function(data){
-					if(data.state !== "wait"){
+			getStatus : function() {
+				_admin$.sync.ajax("./syncStatus.ajax", null, function(data) {
+					//console.log(data);
+					if (data.state !== "wait") {
 						$(".card-btn").addClass("disabled");
+						_admin$.isRunning = true;
+					} else {
+						$(".card-btn").removeClass("disabled");
+						if (_admin$.isRunning) {
+
+						}
+						_admin$.isRunning = false;
 					}
-					$("#status").val(data.state);
+					$("#status").val("State: " + data.state + ", Message: " + data.messgae);
 					$("#timestamp").val(moment(new Date).format("YYYY-MM-DD HH:mm:ss"));
-					setTimeout(function(){
-						_$.sync.getStatus();			
-					},500);
+					setTimeout(function() {
+						_admin$.sync.getStatus();
+					}, 500);
 				});
 			}
 		}
-		/*sync : {
-			ajax : function(url, data, cb) {
-				$.ajax({
-					url : url,
-					type : "POST",
-					dataType : "json",
-					data : data,
-					success : function(data, textStatus, jqXHR) {
-						cb.call(this, data);
-					},
-					error : function(jqXHR, textStatus, errorThrown) {
-						console.log(jqXHR);
-						console.log(errorThrown);
-						toastr.error("system error!");
-					},
-					complete : function(jqXHR, textStatus) {
+	/*sync : {
+		ajax : function(url, data, cb) {
+			$.ajax({
+				url : url,
+				type : "POST",
+				dataType : "json",
+				data : data,
+				success : function(data, textStatus, jqXHR) {
+					cb.call(this, data);
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					console.log(jqXHR);
+					console.log(errorThrown);
+					toastr.error("system error!");
+				},
+				complete : function(jqXHR, textStatus) {
 
-					}
+				}
+			});
+		},
+		start : function() {
+			console.log("start");
+			if (!$(".syn-btn").hasClass("start")) {
+				$(".syn-btn").addClass("start");
+				$(".syn-btn").addClass("bg-info");
+				$(".syn-btn").removeClass("bg-success");
+				_admin$.sync.ajax("./sync.ajax", null, function() {
+					setTimeout(_admin$.sync.interval, 1000);
 				});
-			},
-			start : function() {
-				console.log("start");
-				if (!$(".syn-btn").hasClass("start")) {
-					$(".syn-btn").addClass("start");
-					$(".syn-btn").addClass("bg-info");
-					$(".syn-btn").removeClass("bg-success");
-					_$.sync.ajax("./sync.ajax", null, function() {
-						setTimeout(_$.sync.interval, 1000);
-					});
-				}
-			},
-			interval : function() {
-				if (buffering < 10) {
-					$(".syc-progress").html("Process...");
-					buffering++;
-					$(".progress-bar").css("width", (buffering * 10) + "%");
-					setTimeout(_$.sync.interval, 1000);
-				} else {
-					buffering = 0;
-					$(".syc-progress").html("Ready...");
-					$(".syn-btn").removeClass("start");
-					$(".syn-btn").removeClass("bg-info");
-					$(".syn-btn").addClass("bg-success");
-					$(".progress-bar").css("width", "0");
-				}
-
 			}
-		}*/
+		},
+		interval : function() {
+			if (buffering < 10) {
+				$(".syc-progress").html("Process...");
+				buffering++;
+				$(".progress-bar").css("width", (buffering * 10) + "%");
+				setTimeout(_admin$.sync.interval, 1000);
+			} else {
+				buffering = 0;
+				$(".syc-progress").html("Ready...");
+				$(".syn-btn").removeClass("start");
+				$(".syn-btn").removeClass("bg-info");
+				$(".syn-btn").addClass("bg-success");
+				$(".progress-bar").css("width", "0");
+			}
+
+		}
+	}*/
 	});
 </script>
 <jsp:include page="./particle/bottom2.jsp"></jsp:include>

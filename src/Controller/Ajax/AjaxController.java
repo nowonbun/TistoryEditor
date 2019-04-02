@@ -1,13 +1,18 @@
 package Controller.Ajax;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import Bean.MenuBean;
 import Bean.SyncStateBean;
 import BlogApi.BlogApiThread;
+import BlogApi.MenuBuilder;
 import Common.AbstractAjaxController;
 
 @Controller
@@ -24,5 +29,11 @@ public class AjaxController extends AbstractAjaxController {
 		bean.setState(BlogApiThread.status().toString());
 		bean.setMessgae(BlogApiThread.message());
 		returnJson(res, bean);
+	}
+
+	@RequestMapping(value = "/menu.ajx")
+	public void menu(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
+		List<MenuBean> list = MenuBuilder.get().getMenu();
+		returnJson(res, list);
 	}
 }

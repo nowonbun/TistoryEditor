@@ -16,6 +16,9 @@ public class AccessToken implements Serializable {
 
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createddate;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date lastupdateddate;
 
 	private boolean isdeleted;
 
@@ -69,4 +72,11 @@ public class AccessToken implements Serializable {
 		this.oAuthInfo = oAuthInfo;
 	}
 
+	public Date getLastupdateddate() {
+		return this.lastupdateddate;
+	}
+
+	public void setLastupdateddate(Date lastupdateddate) {
+		this.lastupdateddate = lastupdateddate;
+	}
 }

@@ -23,6 +23,9 @@ public class Blog implements Serializable {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createddate;
 
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date lastupdateddate;
+
 	@Column(name = "`DEFAULT`")
 	private String default_;
 
@@ -256,4 +259,11 @@ public class Blog implements Serializable {
 		return post;
 	}
 
+	public Date getLastupdateddate() {
+		return this.lastupdateddate;
+	}
+
+	public void setLastupdateddate(Date lastupdateddate) {
+		this.lastupdateddate = lastupdateddate;
+	}
 }

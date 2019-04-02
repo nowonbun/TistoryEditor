@@ -22,6 +22,18 @@ public class CategoryDao extends TransactionDao<Category> {
 			}
 		});
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Category> selectAll() {
+		return transaction((em) -> {
+			try {
+				Query query = em.createQuery("SELECT t FROM Category t WHERE t.isdeleted = false");
+				return (List<Category>) query.getResultList();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
 
 	public void deleteAll() {
 		transaction((em) -> {

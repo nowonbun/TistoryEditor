@@ -18,6 +18,9 @@ public class TistoryUser implements Serializable {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createddate;
 
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date lastupdateddate;
+
 	private String id;
 
 	private boolean isdeleted;
@@ -90,6 +93,14 @@ public class TistoryUser implements Serializable {
 		blog.setTistoryUser(null);
 
 		return blog;
+	}
+
+	public Date getLastupdateddate() {
+		return this.lastupdateddate;
+	}
+
+	public void setLastupdateddate(Date lastupdateddate) {
+		this.lastupdateddate = lastupdateddate;
 	}
 
 }

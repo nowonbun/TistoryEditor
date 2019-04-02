@@ -111,6 +111,8 @@ public class BlogApiThread implements Runnable {
 						entity.setGrantType("authorization_code");
 						entity.setCreateddate(new Date());
 						entity.setIsdeleted(false);
+					} else {
+						entity.setLastupdateddate(new Date());
 					}
 
 					if (entity.getAccessTokens() == null) {
@@ -239,6 +241,8 @@ public class BlogApiThread implements Runnable {
 							blog.setName(JsonConverter.JsonString(obj4, "name"));
 							tUserMem.addBlog(blog);
 							blog.setTistoryUser(tUserMem);
+						} else {
+							blog.setLastupdateddate(new Date());
 						}
 						blog.setIsdeleted(false);
 						blog.setUrl(JsonConverter.JsonString(obj4, "url"));
@@ -262,6 +266,8 @@ public class BlogApiThread implements Runnable {
 								blogMem.setBlogStatistic(new BlogStatistic());
 								blogMem.getBlogStatistic().setBlog(blogMem);
 								blogMem.getBlogStatistic().setCreateddate(new Date());
+							} else {
+								blogMem.getBlogStatistic().setLastupdateddate(new Date());
 							}
 							blogMem.getBlogStatistic().setIsdeleted(false);
 							blogMem.getBlogStatistic().setPost(Integer.parseInt(JsonConverter.JsonString(obj5, "post")));
@@ -323,6 +329,8 @@ public class BlogApiThread implements Runnable {
 								category.setBlog(blog);
 								blog.addCategory(category);
 								category.setCategoryId(id);
+							} else {
+								category.setLastupdateddate(new Date());
 							}
 							category.setIsdeleted(false);
 							category.setName(JsonConverter.JsonString(obj4, "name"));
@@ -391,6 +399,7 @@ public class BlogApiThread implements Runnable {
 									if (post.getIsmodified()) {
 										return;
 									}
+									post.setLastupdateddate(new Date());
 								}
 								post.setIsdeleted(false);
 								String categoryId = JsonConverter.JsonString(obj4, "categoryId");

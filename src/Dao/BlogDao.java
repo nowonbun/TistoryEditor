@@ -23,6 +23,18 @@ public class BlogDao extends TransactionDao<Blog> {
 		});
 	}
 
+	@SuppressWarnings("unchecked")
+	public List<Blog> selectAll() {
+		return transaction((em) -> {
+			try {
+				Query query = em.createQuery("SELECT t FROM Blog t where t.isdeleted = false");
+				return (List<Blog>) query.getResultList();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
 	public void deleteAll() {
 		transaction((em) -> {
 			String qy = "UPDATE Blog SET isdeleted = true";

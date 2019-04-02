@@ -5,20 +5,23 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name="tsn_blog_statistics")
-@NamedQuery(name="BlogStatistic.findAll", query="SELECT t FROM BlogStatistic t")
+@Table(name = "tsn_blog_statistics")
+@NamedQuery(name = "BlogStatistic.findAll", query = "SELECT t FROM BlogStatistic t")
 public class BlogStatistic implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int idx;
 
-	@Column(name="`COMMENT`")
+	@Column(name = "`COMMENT`")
 	private int comment;
 
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createddate;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date lastupdateddate;
 
 	private int guestbook;
 
@@ -31,7 +34,7 @@ public class BlogStatistic implements Serializable {
 	private int trackback;
 
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="BLOG_IDX")
+	@JoinColumn(name = "BLOG_IDX")
 	private Blog blog;
 
 	public BlogStatistic() {
@@ -107,6 +110,14 @@ public class BlogStatistic implements Serializable {
 
 	public void setBlog(Blog blog) {
 		this.blog = blog;
+	}
+
+	public Date getLastupdateddate() {
+		return this.lastupdateddate;
+	}
+
+	public void setLastupdateddate(Date lastupdateddate) {
+		this.lastupdateddate = lastupdateddate;
 	}
 
 }

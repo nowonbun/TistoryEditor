@@ -24,6 +24,9 @@ public class Post implements Serializable {
 	private Date createddate;
 
 	@Temporal(TemporalType.TIMESTAMP)
+	private Date lastupdateddate;
+
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date date;
 
 	private boolean isdeleted;
@@ -174,6 +177,14 @@ public class Post implements Serializable {
 
 	public void setCategory(Category category) {
 		this.category = category;
+	}
+
+	public Date getLastupdateddate() {
+		return this.lastupdateddate;
+	}
+
+	public void setLastupdateddate(Date lastupdateddate) {
+		this.lastupdateddate = lastupdateddate;
 	}
 
 }

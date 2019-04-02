@@ -24,6 +24,9 @@ public class OauthInfo implements Serializable {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createddate;
 
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date lastupdateddate;
+
 	@Column(name = "GRANT_TYPE")
 	private String grantType;
 
@@ -135,6 +138,14 @@ public class OauthInfo implements Serializable {
 		accessToken.setOauthInfo(null);
 
 		return accessToken;
+	}
+
+	public Date getLastupdateddate() {
+		return this.lastupdateddate;
+	}
+
+	public void setLastupdateddate(Date lastupdateddate) {
+		this.lastupdateddate = lastupdateddate;
 	}
 
 }
