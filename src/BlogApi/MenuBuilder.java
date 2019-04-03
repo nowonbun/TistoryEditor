@@ -3,13 +3,12 @@ package BlogApi;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
+import java.util.stream.Collectors;
 import Bean.MenuBean;
+import Common.Define;
 import Common.FactoryDao;
 import Common.Util;
-import Common.IF.MenuType;
 import Dao.BlogDao;
-import Dao.CategoryDao;
 import Model.Blog;
 import Model.Category;
 
@@ -45,30 +44,38 @@ public class MenuBuilder {
 		}
 		for (Blog blog : list) {
 			MenuBean bean = new MenuBean();
-			bean.setType(MenuType.parent);
+			bean.setType(Define.MENU_TYPE_PARANT);
 			bean.setName(blog.getName());
-			bean.setUrl(blog.getUrl());
-			List<Category> categoryList = blog.getCategories();
+			bean.setId(blog.getBlogid());
+			List<MenuBean> childbuffer = new ArrayList<>();
 			for (Category category : blog.getCategories()) {
 				if (bean.getChild() == null) {
 					bean.setChild(new ArrayList<>());
 				}
 				MenuBean child = new MenuBean();
-				if (category.getParent() == null) {
-					child.setParent(bean);
+				childbuffer.add(child);
+				if (Util.StringIsEmptyOrNull(category.getParent())) {
+					child.setParent(bean.getId());
+					child.setType(Define.MENU_TYPE_BLOG_SUB);
+					bean.getChild().add(child);
+					child.setChild(childbuffer.stream().filter(x -> Util.StringEquals(x.getParent(), category.getCategoryId()) && x.getType() == Define.MENU_TYPE_CATEGORY_SUB).collect(Collectors.toList()));
 				} else {
-					Optional<MenuBean> search = menulist.stream().filter(x -> Util.StringEquals(x.getId(), category.getCategoryId())).findFirst();
+					Optional<MenuBean> search = childbuffer.stream().filter(x -> Util.StringEquals(x.getId(), category.getParent()) && x.getType() == Define.MENU_TYPE_BLOG_SUB).findFirst();
 					if (search.isPresent()) {
-						child.setParent(search.get());
-					} else {
-						child.setParent(bean);
+						MenuBean parent = search.get();
+						if (parent.getChild() == null) {
+							parent.setChild(new ArrayList<>());
+						}
+						parent.getChild().add(child);
 					}
+					child.setType(Define.MENU_TYPE_CATEGORY_SUB);
+					child.setParent(category.getParent());
 				}
-
+				child.setName(category.getName());
+				child.setId(category.getCategoryId());
 			}
 			menulist.add(bean);
 		}
-
 		return menulist;
 	}
 }

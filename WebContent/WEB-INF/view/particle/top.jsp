@@ -40,7 +40,7 @@
 			</ul>
 		</div>
 		<div class="side-list">
-			<ul class="side-nav">
+			<ul class="side-nav side-menu-list">
 				<li>
 					<a class="link_item" href="javascript:void(0)"><i class="glyphicon glyphicon-triangle-bottom pull-right menu-toggle"></i>개발 노트</a>
 					<ul class="sub_category_list off">

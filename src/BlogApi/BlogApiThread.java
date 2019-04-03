@@ -143,6 +143,7 @@ public class BlogApiThread implements Runnable {
 					}
 				} finally {
 					status = BlogStatus.wait;
+					MenuBuilder.get().init();
 					code = null;
 					type = null;
 				}

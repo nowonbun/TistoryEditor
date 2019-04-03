@@ -31,7 +31,7 @@ public class AjaxController extends AbstractAjaxController {
 		returnJson(res, bean);
 	}
 
-	@RequestMapping(value = "/menu.ajx")
+	@RequestMapping(value = "/menu.ajax")
 	public void menu(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
 		List<MenuBean> list = MenuBuilder.get().getMenu();
 		returnJson(res, list);

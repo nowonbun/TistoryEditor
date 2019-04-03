@@ -2,21 +2,18 @@ package Bean;
 
 import java.util.List;
 
-import Common.IF.MenuType;
-
 public class MenuBean {
-	private MenuType type;
+	private int type;
 	private String name;
-	private String url;
-	private MenuBean parent;
+	private String parent;
 	private List<MenuBean> child;
 	private String id;
 
-	public MenuType getType() {
+	public int getType() {
 		return type;
 	}
 
-	public void setType(MenuType type) {
+	public void setType(int type) {
 		this.type = type;
 	}
 
@@ -28,14 +25,6 @@ public class MenuBean {
 		this.name = name;
 	}
 
-	public String getUrl() {
-		return url;
-	}
-
-	public void setUrl(String url) {
-		this.url = url;
-	}
-
 	public List<MenuBean> getChild() {
 		return child;
 	}
@@ -44,11 +33,11 @@ public class MenuBean {
 		this.child = child;
 	}
 
-	public MenuBean getParent() {
+	public String getParent() {
 		return parent;
 	}
 
-	public void setParent(MenuBean parent) {
+	public void setParent(String parent) {
 		this.parent = parent;
 	}
 

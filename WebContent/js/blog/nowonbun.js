@@ -21,7 +21,8 @@ var _ = (function(obj) {
 			_.menu.left.on();
 			_.menu.back.on();
 		});
-		$(".menu-toggle").on("click", function() {
+		// $(".menu-toggle").on("click", function() {
+		$(document).on("click", ".menu-toggle", function() {
 			$sub = $(this).parent().parent().find("ul");
 			if ($(this).hasClass("glyphicon-triangle-bottom")) {
 				$sub.removeClass("off");
