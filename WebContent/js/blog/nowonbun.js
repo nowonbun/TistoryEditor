@@ -21,17 +21,16 @@ var _ = (function(obj) {
 			_.menu.left.on();
 			_.menu.back.on();
 		});
-		// $(".menu-toggle").on("click", function() {
-		$(document).on("click", ".menu-toggle", function() {
-			$sub = $(this).parent().parent().find("ul");
-			if ($(this).hasClass("glyphicon-triangle-bottom")) {
+		$(document).on("click", ".list_drop_item", function(event) {
+			$sub = $(this).closest("li").children("ul");
+			if ($(this).find(".menu-toggle").hasClass("glyphicon-triangle-bottom")) {
 				$sub.removeClass("off");
-				$(this).removeClass("glyphicon-triangle-bottom");
-				$(this).addClass("glyphicon-triangle-top");
+				$(this).find(".menu-toggle").removeClass("glyphicon-triangle-bottom");
+				$(this).find(".menu-toggle").addClass("glyphicon-triangle-top");
 			} else {
 				$sub.addClass("off");
-				$(this).addClass("glyphicon-triangle-bottom");
-				$(this).removeClass("glyphicon-triangle-top");
+				$(this).find(".menu-toggle").addClass("glyphicon-triangle-bottom");
+				$(this).find(".menu-toggle").removeClass("glyphicon-triangle-top");
 			}
 		});
 	},
@@ -54,12 +53,12 @@ var _ = (function(obj) {
 		back : {
 			on : function() {
 				_.changeOnOff($("section.backgroundLayout"), true);
-				_.changeOnOff($("main"), true);
+				//_.changeOnOff($("main"), true);
 				$("html").addClass("backstatic");
 			},
 			off : function() {
 				_.changeOnOff($("section.backgroundLayout"), false);
-				_.changeOnOff($("main"), false);
+				//_.changeOnOff($("main"), false);
 				$("html").removeClass("backstatic");
 			}
 		}

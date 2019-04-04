@@ -35,6 +35,7 @@ public class BlogApiThread implements Runnable {
 	private static BlogApiThread singleton = null;
 	private BlogStatus status = BlogStatus.wait;
 	private String message = "";
+	private int progress = 0;
 	private BlogSyncType type = null;
 	private String code;
 	private final Map<String, String> parameterBuffer = new HashMap<>();
@@ -66,6 +67,9 @@ public class BlogApiThread implements Runnable {
 	public static String message() {
 		return BlogApiThread.instance().message;
 	}
+	public static int progress() {
+		return BlogApiThread.instance().progress;
+	}
 
 	@Override
 	public void run() {
@@ -81,6 +85,7 @@ public class BlogApiThread implements Runnable {
 			this.message = "The category table was initialize.";
 			FactoryDao.getDao(PostDao.class).deleteAll();
 			this.message = "The post table was initialize.";
+			this.progress = 10;
 			status = BlogStatus.start;
 			Executors.newSingleThreadExecutor().execute(() -> {
 				try {
@@ -135,6 +140,7 @@ public class BlogApiThread implements Runnable {
 					token.setCreateddate(new Date());
 					FactoryDao.getDao(OauthInfoDao.class).update(entity);
 					this.message = "The oauthInfo table was updated.";
+					this.progress = 20;
 					status = BlogStatus.token;
 					if (type == BlogSyncType.pull) {
 						pull(access_token);
@@ -143,6 +149,8 @@ public class BlogApiThread implements Runnable {
 					}
 				} finally {
 					status = BlogStatus.wait;
+					this.message = "";
+					this.progress = 0;
 					MenuBuilder.get().init();
 					code = null;
 					type = null;
@@ -182,10 +190,15 @@ public class BlogApiThread implements Runnable {
 
 	private void pull(String token) {
 		TistoryUser tuser = getBlog(token);
+		this.progress = 30;
 		getCategory(tuser, token);
+		this.progress = 40;
 		getPostList(tuser, token);
+		this.progress = 50;
 		getPost(tuser, token);
+		this.progress = 80;
 		FactoryDao.getDao(TistoryUserDao.class).update(tuser);
+		this.progress = 100;
 	}
 
 	private TistoryUser getBlog(String token) {

@@ -28,6 +28,7 @@ public class AjaxController extends AbstractAjaxController {
 		SyncStateBean bean = new SyncStateBean();
 		bean.setState(BlogApiThread.status().toString());
 		bean.setMessgae(BlogApiThread.message());
+		bean.setProgress(BlogApiThread.progress());
 		returnJson(res, bean);
 	}
 

@@ -35,6 +35,18 @@ public class BlogDao extends TransactionDao<Blog> {
 		});
 	}
 
+	public Blog selectByBlogId(String blogid) {
+		return transaction((em) -> {
+			try {
+				Query query = em.createQuery("SELECT t.idx FROM Blog t where t.isdeleted = false and t.blogid = :blogid");
+				query.setParameter("blogid", blogid);
+				return (Blog) query.getSingleResult();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
 	public void deleteAll() {
 		transaction((em) -> {
 			String qy = "UPDATE Blog SET isdeleted = true";

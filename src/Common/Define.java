@@ -7,4 +7,6 @@ public class Define {
 	public static final int MENU_TYPE_PARANT = 0;
 	public static final int MENU_TYPE_BLOG_SUB = 1;
 	public static final int MENU_TYPE_CATEGORY_SUB = 2;
+	
+	public static final int PAGE_MAX_COUNT = 20;
 }

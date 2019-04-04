@@ -250,6 +250,9 @@ aside#leftside {
 	overflow: auto;
 	display: none;
 	box-shadow: 4px 8px 16px;
+	/**/
+	overflow: auto;
+    height: calc(100vh);
 }
 /*사이드메뉴*/
 aside#leftside.on {
@@ -388,6 +391,17 @@ div.side-list>ul.side-nav>li>ul>li>a {
 	padding-top: 7px;
 	padding-bottom: 3px;
 	font-size: 15px;
+}
+div.side-list>ul.side-nav>li>ul>li>ul>li>a {
+	height: 30px;
+	display: block;
+	/*border-bottom: 1px solid #bdc3c7;*/
+	margin: 5px;
+	margin-left: 60px;
+	padding: 5px;
+	padding-top: 7px;
+	padding-bottom: 3px;
+	font-size: 12px;
 }
 /*사이드바 메뉴리스트 하위 아이콘 (스크롤바 버그 수정)*/
 div.side-footer div.bs-glyphicons {
