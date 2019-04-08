@@ -49,8 +49,8 @@ public class MainController extends AbstractServletController {
 				List<Post> posts = FactoryDao.getDao(PostDao.class).selectByBlog(blog, 1, Define.PAGE_MAX_COUNT);
 				modelmap.addAttribute("list", injectListBean(posts));
 			} else if (type.trim().toLowerCase().equals("category")) {
-				//TODO: Now working
-				//List<Post> posts = FactoryDao.getDao(PostDao.class).selectByCategoryId(categoryId, start, count);
+				List<Post> posts = FactoryDao.getDao(PostDao.class).selectByCategoryId(id, 1, Define.PAGE_MAX_COUNT);
+				modelmap.addAttribute("list", injectListBean(posts));
 			} else {
 				throw new RuntimeException();
 			}
