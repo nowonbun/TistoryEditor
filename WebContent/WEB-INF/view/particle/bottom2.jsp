@@ -26,7 +26,7 @@
 		getMenu : function() {
 			_main$.loading.on();
 			$.ajax({
-				url : "menu.ajax",
+				url : "./menu.ajax",
 				type : "POST",
 				dataType : "json",
 				success : function(data, textStatus, jqXHR) {

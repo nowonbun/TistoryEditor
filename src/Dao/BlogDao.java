@@ -27,7 +27,7 @@ public class BlogDao extends TransactionDao<Blog> {
 	public List<Blog> selectAll() {
 		return transaction((em) -> {
 			try {
-				Query query = em.createQuery("SELECT t FROM Blog t where t.isdeleted = false");
+				Query query = em.createQuery("SELECT b FROM Blog b where b.isdeleted = false order by b.blogid asc");
 				return (List<Blog>) query.getResultList();
 			} catch (NoResultException e) {
 				return null;
@@ -38,7 +38,7 @@ public class BlogDao extends TransactionDao<Blog> {
 	public Blog selectByBlogId(String blogid) {
 		return transaction((em) -> {
 			try {
-				Query query = em.createQuery("SELECT t.idx FROM Blog t where t.isdeleted = false and t.blogid = :blogid");
+				Query query = em.createQuery("SELECT b.idx FROM Blog b where b.isdeleted = false and b.blogid = :blogid order by b.blogid asc");
 				query.setParameter("blogid", blogid);
 				return (Blog) query.getSingleResult();
 			} catch (NoResultException e) {

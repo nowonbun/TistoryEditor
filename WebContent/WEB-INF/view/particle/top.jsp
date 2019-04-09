@@ -17,6 +17,7 @@
 	crossorigin="anonymous">
 <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+<link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.11/summernote.css">
 <link rel="stylesheet" type="text/css" href="./css/blog/nowonbun.css">
 <link rel="stylesheet" type="text/css" href="./css/blog/loader.css">
 </head>

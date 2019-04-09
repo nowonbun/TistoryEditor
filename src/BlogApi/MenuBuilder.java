@@ -1,6 +1,7 @@
 package BlogApi;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -45,7 +46,8 @@ public class MenuBuilder {
 		for (Blog blog : list) {
 			MenuBean bean = new MenuBean();
 			bean.setType(Define.MENU_TYPE_PARANT);
-			bean.setName(blog.getName());
+			// bean.setName(blog.getName());
+			bean.setName(blog.getTitle());
 			bean.setId(blog.getBlogid());
 			List<MenuBean> childbuffer = new ArrayList<>();
 			for (Category category : blog.getCategories()) {
@@ -58,7 +60,8 @@ public class MenuBuilder {
 					child.setParent(bean.getId());
 					child.setType(Define.MENU_TYPE_BLOG_SUB);
 					bean.getChild().add(child);
-					child.setChild(childbuffer.stream().filter(x -> Util.StringEquals(x.getParent(), category.getCategoryId()) && x.getType() == Define.MENU_TYPE_CATEGORY_SUB).collect(Collectors.toList()));
+					child.setChild(
+							childbuffer.stream().filter(x -> Util.StringEquals(x.getParent(), category.getCategoryId()) && x.getType() == Define.MENU_TYPE_CATEGORY_SUB).collect(Collectors.toList()));
 				} else {
 					Optional<MenuBean> search = childbuffer.stream().filter(x -> Util.StringEquals(x.getId(), category.getParent()) && x.getType() == Define.MENU_TYPE_BLOG_SUB).findFirst();
 					if (search.isPresent()) {
@@ -76,6 +79,34 @@ public class MenuBuilder {
 			}
 			menulist.add(bean);
 		}
-		return menulist;
+		return sort(menulist);
+	}
+
+	private List<MenuBean> sort(List<MenuBean> list) {
+		if (list != null) {
+			list.sort(new Comparator<MenuBean>() {
+				@Override
+				public int compare(MenuBean o1, MenuBean o2) {
+					int pre = 0;
+					int next = 0;
+					try {
+						pre = Integer.parseInt(o1.getId());
+					} catch (NumberFormatException e) {
+						pre = 0;
+					}
+					try {
+						next = Integer.parseInt(o2.getId());
+					} catch (NumberFormatException e) {
+						next = 0;
+					}
+
+					return pre - next;
+				}
+			});
+			for (MenuBean item : list) {
+				sort(item.getChild());
+			}
+		}
+		return list;
 	}
 }

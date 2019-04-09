@@ -12,10 +12,11 @@
 /*헤더 z-index  스크롤링때문에*/
 header {
 	z-index: 999;
-	/*position: fixed;*/
+	position: fixed;
 	top: 0px;
 	width: 100%;
 	box-shadow: 2px 4px 8px;
+	min-width: 350px;
 }
 /*헤더와 본문사이 처리(헤더가 position:fixed이기때문에)*/
 section.headerspace {
@@ -25,6 +26,10 @@ section.headerspace {
 body {
 	font-family: childpaper;
 	min-width: 350px;
+}
+
+body.on {
+	overflow: hidden;
 }
 /*오른쪽 상단 로그인 하는 기본 툴*/
 div.tistorytoolbar {
@@ -135,10 +140,15 @@ div.searchList h3>span:after {
 div.searchList p {
 	text-align: center;
 }
+article{
+	box-shadow: 1px 2px 4px;
+    padding: 10px;
+    margin: 10px 0px;
+}
 /*본문 리스트(검색결과)*/
 article>div.searchListEntity {
 	/*padding: 0px 50px;*/
-	border-bottom: 1px solid #ccc;
+	/*border-bottom: 1px solid #ccc;*/
 }
 /*본문 리스트(검색결과)*/
 article>div.searchListEntity>div.list-body {
@@ -190,9 +200,9 @@ article>div.searchListEntity>div.list-body a.list-link>p.list-summary {
 	-webkit-box-orient: vertical;
 }
 /*본문 리스트(검색결과)*/
-article>div.searchListEntity>div.list-body div.list-meta.ie-dotum {
+/*article>div.searchListEntity>div.list-body div.list-meta.ie-dotum {
 	width: 200px;
-}
+}*/
 /*본문 리스트(검색결과)*/
 article>div.searchListEntity>div.list-body div.list-meta.ie-dotum>a {
 	text-decoration: none;
@@ -200,7 +210,8 @@ article>div.searchListEntity>div.list-body div.list-meta.ie-dotum>a {
 	font-size: 12px;
 }
 /*본문 리스트(검색결과)*/
-article>div.searchListEntity>div.list-body div.list-meta.ie-dotum>span.txt-bar{
+article>div.searchListEntity>div.list-body div.list-meta.ie-dotum>span.txt-bar
+	{
 	width: 10px;
 	display: inline-block;
 	font-size: 12px;
@@ -225,7 +236,7 @@ section.backgroundLayout {
 	z-index: 1000;
 	width: 0px;
 	height: 0px;
-	position: absolute;
+	position: fixed;
 	top: 0px;
 	left: 0px;
 }
@@ -241,7 +252,7 @@ aside {
 
 aside#leftside {
 	top: 0px;
-	position: absolute;
+	position: fixed;
 	width: 300px;
 	background-color: rgba(255, 255, 255, 1);
 	z-index: 1001;
@@ -252,7 +263,7 @@ aside#leftside {
 	box-shadow: 4px 8px 16px;
 	/**/
 	overflow: auto;
-    height: calc(100vh);
+	height: calc(100vh);
 }
 /*사이드메뉴*/
 aside#leftside.on {
@@ -392,6 +403,7 @@ div.side-list>ul.side-nav>li>ul>li>a {
 	padding-bottom: 3px;
 	font-size: 15px;
 }
+
 div.side-list>ul.side-nav>li>ul>li>ul>li>a {
 	height: 30px;
 	display: block;
@@ -573,6 +585,7 @@ main {
 	width: 100%;
 	min-height: calc(100vh - 132px);
 	padding: 0px 60px;
+	margin-top: 67px;
 }
 
 main div.main-container {
@@ -602,10 +615,8 @@ div.entry-ccl {
 	text-align: left !important;
 }
 
-div.commentSet input[type=text], 
-div.guestWrite input[type=text], 
-div.commentSet input[type=password],
-div.guestWrite input[type=password] {
+div.commentSet input[type=text], div.guestWrite input[type=text], div.commentSet input[type=password],
+	div.guestWrite input[type=password] {
 	margin-bottom: 5px;
 }
 /*******************
@@ -725,7 +736,8 @@ section.paging>a {
 	top: 4px;
 }
 
-section.paging>span.numbox>span.selected, section.paging>span.numbox>span.max {
+section.paging>span.numbox>span.selected, section.paging>span.numbox>span.max
+	{
 	display: inline-block;
 	background-color: #222;
 	width: 30px;

@@ -36,6 +36,14 @@ public class PostDao extends TransactionDao<Post> {
 		});
 	}
 
+	public long getCountByBlog(Blog blog) {
+		return transaction((em) -> {
+			Query query = em.createQuery("SELECT count(p) FROM Post p where p.isdeleted = false and p.blog = :blog");
+			query.setParameter("blog", blog);
+			return (long) query.getSingleResult();
+		});
+	}
+
 	@SuppressWarnings("unchecked")
 	public List<Post> selectByCategory(Category category, int start, int count) {
 		return transaction((em) -> {
@@ -55,6 +63,23 @@ public class PostDao extends TransactionDao<Post> {
 			query.setFirstResult(start);
 			query.setMaxResults(count);
 			return (List<Post>) query.getResultList();
+		});
+	}
+
+	public Post selectByIdx(int idx, String postId) {
+		return transaction((em) -> {
+			Query query = em.createQuery("SELECT p FROM Post p where p.isdeleted = false and p.idx = :idx and p.postId = :postId");
+			query.setParameter("idx", idx);
+			query.setParameter("postId", postId);
+			return (Post) query.getSingleResult();
+		});
+	}
+
+	public long getCountByCategoryId(String categoryId) {
+		return transaction((em) -> {
+			Query query = em.createQuery("SELECT count(p) FROM Post p where p.isdeleted = false and p.categoryId = :categoryId");
+			query.setParameter("categoryId", categoryId);
+			return (long) query.getSingleResult();
 		});
 	}
 

@@ -22,13 +22,25 @@ public class CategoryDao extends TransactionDao<Category> {
 			}
 		});
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public List<Category> selectAll() {
 		return transaction((em) -> {
 			try {
-				Query query = em.createQuery("SELECT t FROM Category t WHERE t.isdeleted = false");
+				Query query = em.createQuery("SELECT c FROM Category c WHERE c.isdeleted = false order by c.categoryId asc");
 				return (List<Category>) query.getResultList();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
+	public Category getCategoryByCategoryId(String id) {
+		return transaction((em) -> {
+			try {
+				Query query = em.createQuery("SELECT c FROM Category c WHERE c.isdeleted = false and c.categoryId = :categoryId");
+				query.setParameter("categoryId", id);
+				return (Category) query.getSingleResult();
 			} catch (NoResultException e) {
 				return null;
 			}

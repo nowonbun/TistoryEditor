@@ -53,12 +53,12 @@ var _ = (function(obj) {
 		back : {
 			on : function() {
 				_.changeOnOff($("section.backgroundLayout"), true);
-				//_.changeOnOff($("main"), true);
+				_.changeOnOff($("body"), true);
 				$("html").addClass("backstatic");
 			},
 			off : function() {
 				_.changeOnOff($("section.backgroundLayout"), false);
-				//_.changeOnOff($("main"), false);
+				_.changeOnOff($("body"), false);
 				$("html").removeClass("backstatic");
 			}
 		}
