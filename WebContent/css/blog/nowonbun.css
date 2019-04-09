@@ -140,7 +140,7 @@ div.searchList h3>span:after {
 div.searchList p {
 	text-align: center;
 }
-article{
+article.list-item{
 	box-shadow: 1px 2px 4px;
     padding: 10px;
     margin: 10px 0px;

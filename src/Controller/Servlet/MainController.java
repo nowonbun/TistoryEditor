@@ -94,8 +94,6 @@ public class MainController extends AbstractServletController {
 			bean.setPostId(post.getPostId());
 			bean.setPostUrl(post.getPostUrl());
 			bean.setTitle(post.getTitle());
-			bean.setTags(post.getTags());
-
 			File file = new File(post.getContentsPath());
 			if (!file.exists()) {
 				throw new RuntimeException();

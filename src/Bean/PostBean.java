@@ -6,6 +6,7 @@ public class PostBean {
 	private String title;
 	private String postUrl;
 	private String contents;
+	private String categoryId;
 	private String category;
 	private String tags;
 	private String date;

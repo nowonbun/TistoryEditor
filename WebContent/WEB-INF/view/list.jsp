@@ -13,7 +13,7 @@
 		id="pageCount" value="${pageCount}">
 </div>
 <template class="list-article">
-<article>
+<article class="list-item">
 	<div class="list-row pos-right ratio-fixed ratio-4by3 crop-center lts-narrow fouc clearfix searchListEntity">
 		<div class="list-body" style="width: 100%;">
 			<div class="flexbox">
@@ -21,7 +21,9 @@
 					<h3 class="list-head ie-nanum ci-link"></h3>
 				</a>
 				<div class="list-meta ie-dotum">
-					<a href="" target="_blank" class="p-category ci-color">블로그 원본 링크</a> <br /> <span class="timeago ff-h dt-published tag-column"></span> <br /> <span class="timeago ff-h dt-published date-column"></span>
+					<a href="" target="_blank" class="p-category ci-color">블로그 원본 링크</a> <br /> 
+					<span class="timeago ff-h dt-published tag-column"></span> <br />
+					 <span class="timeago ff-h dt-published date-column"></span>
 				</div>
 			</div>
 		</div>
