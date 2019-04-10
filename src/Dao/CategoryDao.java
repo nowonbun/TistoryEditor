@@ -47,6 +47,18 @@ public class CategoryDao extends TransactionDao<Category> {
 		});
 	}
 
+	public Category getCategoryByIdx(int idx) {
+		return transaction((em) -> {
+			try {
+				Query query = em.createQuery("SELECT c FROM Category c WHERE c.isdeleted = false and c.idx = :idx");
+				query.setParameter("idx", idx);
+				return (Category) query.getSingleResult();
+			} catch (NoResultException e) {
+				return null;
+			}
+		});
+	}
+
 	public void deleteAll() {
 		transaction((em) -> {
 			String qy = "UPDATE Category SET isdeleted = true";

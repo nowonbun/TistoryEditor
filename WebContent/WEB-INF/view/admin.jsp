@@ -144,7 +144,7 @@ div.row>div {
 					} else {
 						$(".card-btn").removeClass("disabled");
 						if (_admin$.isRunning) {
-							_main$.getMenu();
+							_common$.getMenu();
 						}
 						_admin$.isRunning = false;
 					}

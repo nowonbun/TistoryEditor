@@ -9,8 +9,10 @@
 		<p>검색 건수 : ${count}건</p>
 	</div>
 	<div class="list-area"></div>
-	<input type="hidden" id="pType" value="${pType}"> <input type="hidden" id="pId" value="${pId}"> <input type="hidden" id="count" value="${count}"> <input type="hidden"
-		id="pageCount" value="${pageCount}">
+	<input type="hidden" id="pType" value="${pType}"> 
+	<input type="hidden" id="pId" value="${pId}"> 
+	<input type="hidden" id="count" value="${count}">
+	<input type="hidden" id="pageCount" value="${pageCount}">
 </div>
 <template class="list-article">
 <article class="list-item">
@@ -54,7 +56,7 @@
 			_list$.getList();
 		},
 		getList : function() {
-			_main$.loading.on();
+			_common$.loading.on();
 			$.ajax({
 				type : 'POST',
 				dataType : 'json',
@@ -65,8 +67,8 @@
 				},
 				url : "./list.ajax",
 				success : function(data) {
-					_main$.loading.off();
-					console.log(data);
+					_common$.loading.off();
+					//console.log(data);
 					for (var i = 0; i < data.length; i++) {
 						var post = data[i];
 						var $article = $($(".list-article").html());

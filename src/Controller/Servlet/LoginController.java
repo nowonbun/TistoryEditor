@@ -17,6 +17,10 @@ import Common.Util;
 public class LoginController extends AbstractServletController {
 	@RequestMapping(value = "/index.html", method = RequestMethod.GET)
 	public String index(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
+		String isLogin = PropertyMap.getInstance().getProperty("config", "login");
+		if (!Util.StringIsEmptyOrNull(isLogin) && "false".equals(isLogin.toLowerCase())) {
+			session.setAttribute(Define.USER_SESSION_NAME, new UserBean());
+		}
 		if (super.getCurrentUser(session) != null) {
 			return redirect("main.html");
 		}

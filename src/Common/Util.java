@@ -79,6 +79,10 @@ public class Util {
 		return key.replace("-", "") + dateFormat2.format(new Date());
 	}
 
+	public static String getTimeUnique() {
+		return dateFormat2.format(new Date());
+	}
+
 	public static int getCookieExpire() {
 		return 60 * 60 * 24 * PropertyMap.getInstance().getPropertyInt("config", "cookie_expire");
 	}
@@ -100,6 +104,9 @@ public class Util {
 	}
 
 	public static String convertDateFormat(Date date) {
+		if (date == null) {
+			return null;
+		}
 		return javascriptDateFormat.format(date);
 	}
 }

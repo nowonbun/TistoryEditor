@@ -45,6 +45,31 @@ public class PostDao extends TransactionDao<Post> {
 	}
 
 	@SuppressWarnings("unchecked")
+	public List<Post> selectToWaitingPost(int start, int count) {
+		return transaction((em) -> {
+			Query query = em.createQuery("SELECT p FROM Post p where p.ismodified = true order by p.lastupdateddate desc");
+			query.setFirstResult(start);
+			query.setMaxResults(count);
+			return (List<Post>) query.getResultList();
+		});
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Post> selectToWaitingPost() {
+		return transaction((em) -> {
+			Query query = em.createQuery("SELECT p FROM Post p where p.ismodified = true");
+			return (List<Post>) query.getResultList();
+		});
+	}
+
+	public long getCountToWaitingPost() {
+		return transaction((em) -> {
+			Query query = em.createQuery("SELECT count(p) FROM Post p where p.ismodified = true");
+			return (long) query.getSingleResult();
+		});
+	}
+
+	@SuppressWarnings("unchecked")
 	public List<Post> selectByCategory(Category category, int start, int count) {
 		return transaction((em) -> {
 			Query query = em.createQuery("SELECT p FROM Post p where p.isdeleted = false and p.category = :category order by p.date desc");

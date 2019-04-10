@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 </body>
 <script>
-	var _main$ = (function(obj) {
+	var _common$ = (function(obj) {
 		obj.init();
 		$(obj.onLoad);
 		return obj;
@@ -10,8 +10,9 @@
 			this.loading.on();
 		},
 		onLoad : function() {
-			_main$.loading.on();
-			_main$.getMenu();
+			_common$.loading.on();
+			_common$.getMenu();
+			_common$.getQueueMessage();
 		},
 		loading : {
 			on : function() {
@@ -23,8 +24,24 @@
 				$(".loader-layout").addClass("off");
 			}
 		},
+		setQueueMessage : function(type, message) {
+			$.cookie('TistoryEditorMessage', JSON.stringify({
+				type : type,
+				message : message
+			}), {
+				expires : 1
+			});
+		},
+		getQueueMessage : function() {
+			var data = $.cookie('TistoryEditorMessage');
+			$.cookie('TistoryEditorMessage', null);
+			if(data !== "null"){
+				data = JSON.parse(data);
+				toastr[data.type](data.message);	
+			}
+		},
 		getMenu : function() {
-			_main$.loading.on();
+			_common$.loading.on();
 			$.ajax({
 				url : "./menu.ajax",
 				type : "POST",
@@ -76,13 +93,13 @@
 					}
 					$side_menu.append("<li><a class='link_item' href='./admin.html'>관리</a></li>");
 					//console.log(data);
-					_main$.loading.off();
+					_common$.loading.off();
 				},
 				error : function(jqXHR, textStatus, errorThrown) {
 					console.log(jqXHR);
 					console.log(errorThrown);
 					toastr.error("system error!");
-					_main$.loading.off();
+					_common$.loading.off();
 				},
 				complete : function(jqXHR, textStatus) {
 

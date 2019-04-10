@@ -2,6 +2,7 @@ package Common;
 
 import javax.servlet.http.HttpServletResponse;
 
+import Bean.AjaxReturnBean;
 import Bean.ObjectBean;
 
 public abstract class AbstractAjaxController extends AbstractController {
@@ -27,5 +28,23 @@ public abstract class AbstractAjaxController extends AbstractController {
 
 	protected void OKAjax(HttpServletResponse res) {
 		returnJson(res, new ObjectBean(true));
+	}
+
+	protected void NGAjax(HttpServletResponse res) {
+		returnJson(res, new ObjectBean(false));
+	}
+
+	protected void OKAjax(HttpServletResponse res, String message) {
+		AjaxReturnBean bean = new AjaxReturnBean();
+		bean.setRet(true);
+		bean.setMessage(message);
+		returnJson(res, bean);
+	}
+
+	protected void NGAjax(HttpServletResponse res, String message) {
+		AjaxReturnBean bean = new AjaxReturnBean();
+		bean.setRet(false);
+		bean.setMessage(message);
+		returnJson(res, bean);
 	}
 }
