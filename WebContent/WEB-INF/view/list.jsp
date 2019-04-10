@@ -41,8 +41,8 @@
 		return obj;
 	})({
 		page : 0,
-		count : Number($("#count").val()),
-		pageCount : Number($("#pageCount").val()),
+		count : Number($.trim($("#count").val())),
+		pageCount : Number($.trim($("#pageCount").val())),
 		init : function() {
 			$(window).scroll(function() {
 				if ($(window).scrollTop() >= $(document).height() - $(window).height()) {
@@ -57,6 +57,18 @@
 		},
 		getList : function() {
 			_common$.loading.on();
+			if (_list$.count === 0) {
+				var $article = $("<article class='no-list-item'></article>");
+				var $entity = $("<div class='list-row pos-right ratio-fixed ratio-4by3 crop-center lts-narrow fouc clearfix searchListEntity'></div>");
+				var $entity_body = $("<div style='width: 100%;text-align:center;'></div>");
+				$entity_body.append("검색된 결과가 없습니다.");
+				$(".list-area").html("");
+				$entity.append($entity_body);
+				$article.append($entity);
+				$(".list-area").append($article);
+				_common$.loading.off();
+				return;
+			}
 			$.ajax({
 				type : 'POST',
 				dataType : 'json',
@@ -68,7 +80,6 @@
 				url : "./list.ajax",
 				success : function(data) {
 					_common$.loading.off();
-					//console.log(data);
 					for (var i = 0; i < data.length; i++) {
 						var post = data[i];
 						var $article = $($(".list-article").html());

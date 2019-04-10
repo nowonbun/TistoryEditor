@@ -28,11 +28,12 @@
 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 	<div class="searchList">
 		<h3>Push 등록 대기 리스트</h3>
-		<p>건수 : <span id="list_count">${count}</span>건</p>
+		<p>
+			건수 : <span id="list_count">${count}</span>건
+		</p>
 	</div>
 	<div class="list-area"></div>
-	<input type="hidden" id="count" value="${count} ">
-	<input type="hidden" id="pageCount" value="${pageCount}">
+	<input type="hidden" id="count" value="${count}"> <input type="hidden" id="pageCount" value="${pageCount}">
 </div>
 <template class="list-article">
 <article class="list-item">
@@ -43,9 +44,7 @@
 					<h3 class="list-head ie-nanum ci-link"></h3>
 				</a>
 				<div class="list-meta ie-dotum">
-					<a href="" target="_blank" class="p-category ci-color">블로그 원본 링크</a> <br /> 
-					<span class="timeago ff-h dt-published tag-column"></span> <br />
-					 <span class="timeago ff-h dt-published date-column"></span>
+					<a href="" target="_blank" class="p-category ci-color">블로그 원본 링크</a> <br /> <span class="timeago ff-h dt-published tag-column"></span> <br /> <span class="timeago ff-h dt-published date-column"></span>
 				</div>
 			</div>
 		</div>
@@ -60,8 +59,8 @@
 		return obj;
 	})({
 		page : 0,
-		count : Number($("#count").val()),
-		pageCount : Number($("#pageCount").val()),
+		count : Number($.trim($("#count").val())),
+		pageCount : Number($.trim($("#pageCount").val())),
 		init : function() {
 			$(window).scroll(function() {
 				if ($(window).scrollTop() >= $(document).height() - $(window).height()) {
@@ -83,8 +82,8 @@
 					},
 					url : "./initWaitlist.ajax",
 					success : function(data) {
-						$("#count").val("0");
-						
+						_main$.count = 0;
+						_main$.getWaitingPost();
 						$('#myModal').modal('hide');
 						_common$.loading.off();
 						toastr.success(data.message);
@@ -100,9 +99,16 @@
 		},
 		getWaitingPost : function() {
 			_common$.loading.on();
-			if ($("#count").val() === "0") {
-				//no
-				_common$.loading.off();	
+			if (_main$.count === 0) {
+				var $article = $("<article class='no-list-item'></article>");
+				var $entity = $("<div class='list-row pos-right ratio-fixed ratio-4by3 crop-center lts-narrow fouc clearfix searchListEntity'></div>");
+				var $entity_body = $("<div style='width: 100%;text-align:center;'></div>");
+				$entity_body.append("검색된 결과가 없습니다.");
+				$(".list-area").html("");
+				$entity.append($entity_body);
+				$article.append($entity);
+				$(".list-area").append($article);
+				_common$.loading.off();
 				return;
 			}
 			$.ajax({
@@ -114,7 +120,7 @@
 				url : "./getWaitlist.ajax",
 				success : function(data) {
 					_common$.loading.off();
-					//console.log(data);
+					;
 					for (var i = 0; i < data.length; i++) {
 						var post = data[i];
 						var $article = $($(".list-article").html());

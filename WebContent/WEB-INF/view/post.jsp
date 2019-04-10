@@ -78,8 +78,8 @@
 					url : "./deletePost.ajax",
 					success : function(data) {
 						if (data.ret) {
-							toastr.success(data.message);
-							_common$.setQueueMessage("danger", data.message);
+							toastr.error(data.message);
+							_common$.setQueueMessage("error", data.message);
 							location.href = $("#article_list_link").prop("href");
 						}
 					},
