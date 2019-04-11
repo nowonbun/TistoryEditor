@@ -1,14 +1,15 @@
 package BlogApi;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.URL;
+
 import java.util.Map;
 
-import Common.PropertyMap;
-import Common.Util;
+import org.apache.log4j.Logger;
+import org.springframework.http.HttpMethod;
+
+import Common.LoggerManager;
 
 public class BlogApiConnectionBuilder {
 	private static BlogApiConnectionBuilder singleton = null;
+	private Logger logger = LoggerManager.getLogger(BlogApiConnectionBuilder.class);
 
 	public static BlogApiConnectionBuilder instance() {
 		if (singleton == null) {
@@ -17,8 +18,11 @@ public class BlogApiConnectionBuilder {
 		return singleton;
 	}
 
-	public BlogApiConnection build(String url, Map<String, String> parameter) {
+	private BlogApiConnectionBuilder() {
+		logger.info("[Constructor] This class will be allocated. : BlogApiConnectionBuilder");
+	}
 
+	public BlogApiConnection build(String url, Map<String, String> parameter, HttpMethod method) {
 		String param = null;
 		for (String key : parameter.keySet()) {
 			if (param == null) {
@@ -28,15 +32,12 @@ public class BlogApiConnectionBuilder {
 			}
 			param += key + "=" + parameter.get(key);
 		}
-
 		try {
-			URL obj = new URL(url + "?" + param);
-			String proxy = PropertyMap.getInstance().getProperty("config", "proxy");
-			int port = PropertyMap.getInstance().getPropertyInt("config", "proxy_port");
-			if (Util.StringIsEmptyOrNull(proxy)) {
-				return new BlogApiConnection(obj.openConnection());
-			}
-			return new BlogApiConnection(obj.openConnection(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxy, port))));
+			logger.info("[build] The http connection will be allocated.");
+			logger.info("[build] url : " + url);
+			logger.info("[build] param : " + param);
+			logger.info("[build] method : " + method.toString());
+			return new BlogApiConnection(url, param, method);
 		} catch (Throwable e) {
 			e.printStackTrace();
 			return null;

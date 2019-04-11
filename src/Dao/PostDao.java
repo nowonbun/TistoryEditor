@@ -45,6 +45,23 @@ public class PostDao extends TransactionDao<Post> {
 	}
 
 	@SuppressWarnings("unchecked")
+	public List<Post> selectToDelete(int start, int count) {
+		return transaction((em) -> {
+			Query query = em.createQuery("SELECT p FROM Post p where p.isdeleted = true order by p.date desc");
+			query.setFirstResult(start);
+			query.setMaxResults(count);
+			return (List<Post>) query.getResultList();
+		});
+	}
+
+	public long getCountToDelete() {
+		return transaction((em) -> {
+			Query query = em.createQuery("SELECT count(p) FROM Post p where p.isdeleted = true");
+			return (long) query.getSingleResult();
+		});
+	}
+
+	@SuppressWarnings("unchecked")
 	public List<Post> selectToWaitingPost(int start, int count) {
 		return transaction((em) -> {
 			Query query = em.createQuery("SELECT p FROM Post p where p.ismodified = true order by p.lastupdateddate desc");
@@ -53,7 +70,7 @@ public class PostDao extends TransactionDao<Post> {
 			return (List<Post>) query.getResultList();
 		});
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public List<Post> selectToWaitingPost() {
 		return transaction((em) -> {
@@ -93,7 +110,7 @@ public class PostDao extends TransactionDao<Post> {
 
 	public Post selectByIdx(int idx, String postId) {
 		return transaction((em) -> {
-			Query query = em.createQuery("SELECT p FROM Post p where p.isdeleted = false and p.idx = :idx and p.postId = :postId");
+			Query query = em.createQuery("SELECT p FROM Post p where p.idx = :idx and p.postId = :postId");
 			query.setParameter("idx", idx);
 			query.setParameter("postId", postId);
 			return (Post) query.getSingleResult();

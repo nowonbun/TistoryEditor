@@ -10,5 +10,6 @@ public enum BlogStatus {
 	postlist,
 	post,
 	complate,
-	error
+	error,
+	push
 }

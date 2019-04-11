@@ -9,10 +9,7 @@
 		<p>검색 건수 : ${count}건</p>
 	</div>
 	<div class="list-area"></div>
-	<input type="hidden" id="pType" value="${pType}"> 
-	<input type="hidden" id="pId" value="${pId}"> 
-	<input type="hidden" id="count" value="${count}">
-	<input type="hidden" id="pageCount" value="${pageCount}">
+	<input type="hidden" id="count" value="${count}"> <input type="hidden" id="pageCount" value="${pageCount}">
 </div>
 <template class="list-article">
 <article class="list-item">
@@ -23,9 +20,7 @@
 					<h3 class="list-head ie-nanum ci-link"></h3>
 				</a>
 				<div class="list-meta ie-dotum">
-					<a href="" target="_blank" class="p-category ci-color">블로그 원본 링크</a> <br /> 
-					<span class="timeago ff-h dt-published tag-column"></span> <br />
-					 <span class="timeago ff-h dt-published date-column"></span>
+					<a href="" target="_blank" class="p-category ci-color">블로그 원본 링크</a> <br /> <span class="timeago ff-h dt-published tag-column"></span> <br /> <span class="timeago ff-h dt-published date-column"></span>
 				</div>
 			</div>
 		</div>
@@ -35,7 +30,7 @@
 <!-- https://aljjabaegi.tistory.com/191 -->
 <jsp:include page="./particle/bottom.jsp"></jsp:include>
 <script>
-	var _list$ = (function(obj) {
+	var _deletelist$ = (function(obj) {
 		obj.init();
 		$(obj.onLoad);
 		return obj;
@@ -46,18 +41,18 @@
 		init : function() {
 			$(window).scroll(function() {
 				if ($(window).scrollTop() >= $(document).height() - $(window).height()) {
-					if (_list$.count > _list$.page * _list$.pageCount) {
-						_list$.getList();
+					if (_deletelist$.count > _deletelist$.page * _deletelist$.pageCount) {
+						_deletelist$.getList();
 					}
 				}
 			});
 		},
 		onLoad : function() {
-			_list$.getList();
+			_deletelist$.getList();
 		},
 		getList : function() {
 			_common$.loading.on();
-			if (_list$.count === 0) {
+			if (_deletelist$.count === 0) {
 				var $article = $("<article class='no-list-item'></article>");
 				var $entity = $("<div class='list-row pos-right ratio-fixed ratio-4by3 crop-center lts-narrow fouc clearfix searchListEntity'></div>");
 				var $entity_body = $("<div style='width: 100%;text-align:center;'></div>");
@@ -73,11 +68,9 @@
 				type : 'POST',
 				dataType : 'json',
 				data : {
-					page : _list$.page,
-					type : $("#pType").val(),
-					id : $("#pId").val()
+					page : _deletelist$.page
 				},
-				url : "./list.ajax",
+				url : "./deleteList.ajax",
 				success : function(data) {
 					for (var i = 0; i < data.length; i++) {
 						var post = data[i];
@@ -94,7 +87,7 @@
 						$article.find(".date-column").text(post.date);
 						$(".list-area").append($article);
 					}
-					_list$.page++;
+					_deletelist$.page++;
 					_common$.loading.off();
 				},
 				error : function(jqXHR, textStatus, errorThrown) {

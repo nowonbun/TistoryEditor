@@ -1,5 +1,12 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <jsp:include page="./particle/top.jsp"></jsp:include>
+<style>
+.post-status{
+    margin-left: 20px;
+    padding: 5px;
+    font-size: 1.2rem;
+}
+</style>
 <div class="modal fade" tabindex="-1" role="dialog" id="myModal">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
@@ -83,13 +90,19 @@
 					url : "./initWaitlist.ajax",
 					success : function(data) {
 						_main$.count = 0;
+						$("#list_count").text("0");
 						_main$.getWaitingPost();
 						$('#myModal').modal('hide');
 						_common$.loading.off();
 						toastr.success(data.message);
 					},
-					error : function(e) {
-
+					error : function(jqXHR, textStatus, errorThrown) {
+						console.log(jqXHR);
+						console.log(errorThrown);
+						toastr.error("예상치 못한 에러가 발생했습니다. 로그를 확인해 주십시오.");
+					},
+					complete : function(jqXHR, textStatus) {
+						_common$.loading.off();
 					}
 				});
 			});
@@ -120,25 +133,42 @@
 				url : "./getWaitlist.ajax",
 				success : function(data) {
 					_common$.loading.off();
-					;
 					for (var i = 0; i < data.length; i++) {
 						var post = data[i];
 						var $article = $($(".list-article").html());
 						$article.find(".list-link").prop("href", "./post.html?idx=" + post.postIdx + "&id=" + post.postId);
 						$article.find(".ci-link").text(post.title);
+						$status = $("<span class='post-status'></span>");
+						if (post.status === 1) {
+							$status.addClass("bg-info");
+							$status.append("추가");
+						} else if (post.status === 2) {
+							$status.addClass("bg-warning");
+							$status.append("수정");
+						} else if (post.status === 3) {
+							$status.addClass("bg-danger");
+							$status.append("삭제");
+						}
+						$article.find(".ci-link").append($status);
 						$article.find(".p-category").prop("href", post.postUrl);
 						try {
 							$article.find(".tag-column").text("tag - " + JSON.parse(post.tags).tag.toString());
 						} catch (e) {
 
 						}
-						$article.find(".date-column").text(post.date);
+						if($.trim(post.date) === ""){
+							$article.find(".date-column").text("-");
+						} else {
+							$article.find(".date-column").text(post.date);	
+						}
 						$(".list-area").append($article);
 					}
 					_main$.page++;
 				},
-				error : function(e) {
-
+				error : function(jqXHR, textStatus, errorThrown) {
+					console.log(jqXHR);
+					console.log(errorThrown);
+					toastr.error("예상치 못한 에러가 발생했습니다. 로그를 확인해 주십시오.");
 				}
 			});
 		}

@@ -1,7 +1,12 @@
 package BlogApi;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -11,9 +16,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
+
+import javax.annotation.processing.FilerException;
 import javax.json.JsonObject;
+
+import org.apache.log4j.Logger;
+import org.springframework.http.HttpMethod;
+
 import Common.FactoryDao;
 import Common.JsonConverter;
+import Common.LoggerManager;
 import Common.PropertyMap;
 import Common.Util;
 import Common.IF.ActionExpression;
@@ -33,6 +45,7 @@ import Model.TistoryUser;
 
 public class BlogApiThread implements Runnable {
 	private static BlogApiThread singleton = null;
+	private Logger logger = LoggerManager.getLogger(BlogApiThread.class);
 	private BlogStatus status = BlogStatus.wait;
 	private String message = "";
 	private int progress = 0;
@@ -42,6 +55,7 @@ public class BlogApiThread implements Runnable {
 	private final List<Integer> countBuffer = new ArrayList<>(2);
 
 	private BlogApiThread() {
+		logger.info("[Constructor] This class will be allocated. : BlogApiConnectionBuilder");
 		setCount(0, 0);
 	}
 
@@ -67,6 +81,7 @@ public class BlogApiThread implements Runnable {
 	public static String message() {
 		return BlogApiThread.instance().message;
 	}
+
 	public static int progress() {
 		return BlogApiThread.instance().progress;
 	}
@@ -74,18 +89,7 @@ public class BlogApiThread implements Runnable {
 	@Override
 	public void run() {
 		if (status == BlogStatus.wait && code != null && type != null) {
-			status = BlogStatus.init;
-			FactoryDao.getDao(TistoryUserDao.class).deleteAll();
-			this.message = "The tisotryuser table was initialize.";
-			FactoryDao.getDao(BlogDao.class).deleteAll();
-			this.message = "The blog table was initialize.";
-			FactoryDao.getDao(BlogStatisticDao.class).deleteAll();
-			this.message = "The blogstatistic table was initialize.";
-			FactoryDao.getDao(CategoryDao.class).deleteAll();
-			this.message = "The category table was initialize.";
-			FactoryDao.getDao(PostDao.class).deleteAll();
-			this.message = "The post table was initialize.";
-			this.progress = 10;
+			logger.info("[run] This thread will be started.");
 			status = BlogStatus.start;
 			Executors.newSingleThreadExecutor().execute(() -> {
 				try {
@@ -98,14 +102,15 @@ public class BlogApiThread implements Runnable {
 					parameterBuffer.put("redirect_uri", redirect_uri);
 					parameterBuffer.put("code", code);
 					parameterBuffer.put("grant_type", "authorization_code");
-					BlogApiConnection connection = BlogApiConnectionBuilder.instance().build("https://www.tistory.com/oauth/access_token", parameterBuffer);
+					BlogApiConnection connection = BlogApiConnectionBuilder.instance().build("https://www.tistory.com/oauth/access_token", parameterBuffer, HttpMethod.GET);
 					String access_token = connection.getResponse().replace("access_token=", "").replace("\r", "").replace("\n", "");
 					if (Util.StringIsEmptyOrNull(access_token)) {
 						status = BlogStatus.error;
-						this.message = "It's failed that get the access_token from tistory.";
+						logger.error("[run] It's failed that get the access_token from tistory.");
+						this.message = "티스토리 블로그로부터 토큰 취득에 실패했습니다.";
 						return;
 					}
-
+					logger.info("[run] Token : " + access_token);
 					OauthInfo entity = FactoryDao.getDao(OauthInfoDao.class).getOauthInfo(client_id, client_secret, redirect_uri);
 					if (entity == null) {
 						entity = new OauthInfo();
@@ -139,13 +144,16 @@ public class BlogApiThread implements Runnable {
 					token.setIsdeleted(false);
 					token.setCreateddate(new Date());
 					FactoryDao.getDao(OauthInfoDao.class).update(entity);
-					this.message = "The oauthInfo table was updated.";
-					this.progress = 20;
+					logger.info("[run] The oauthInfo table was updated.");
+					this.message = "인증 테이블이 업데이트 되었습니다.";
+					this.progress = 10;
 					status = BlogStatus.token;
 					if (type == BlogSyncType.pull) {
+						logger.info("[run] The pull procedure will be started.");
 						pull(access_token);
 					} else if (type == BlogSyncType.push) {
-
+						logger.info("[run] The push procedure will be started.");
+						push(access_token);
 					}
 				} finally {
 					status = BlogStatus.wait;
@@ -189,25 +197,152 @@ public class BlogApiThread implements Runnable {
 	}
 
 	private void pull(String token) {
-		TistoryUser tuser = getBlog(token);
+		status = BlogStatus.init;
+		FactoryDao.getDao(TistoryUserDao.class).deleteAll();
+		this.message = "티스토리 유저 테이블이 업데이트 되었습니다.";
+		logger.info("[pull] The tisotryuser table was initialize.");
+		FactoryDao.getDao(BlogDao.class).deleteAll();
+		this.message = "블로그 테이블이 업데이트 되었습니다.";
+		logger.info("[pull] The blog table was initialize.");
+		FactoryDao.getDao(BlogStatisticDao.class).deleteAll();
+		this.message = "블로그 통계 테이블이 업데이트 되었습니다.";
+		logger.info("[pull] The blogstatistic table was initialize.");
+		FactoryDao.getDao(CategoryDao.class).deleteAll();
+		this.message = "카테고리 테이블이 업데이트 되었습니다.";
+		logger.info("[pull] The category table was initialize.");
+		FactoryDao.getDao(PostDao.class).deleteAll();
+		this.message = "포스트 테이블이 초기화 되었습니다.";
+		logger.info("[pull] The post table was initialize.");
 		this.progress = 30;
-		getCategory(tuser, token);
+		TistoryUser tuser = getBlog(token);
 		this.progress = 40;
-		getPostList(tuser, token);
+		getCategory(tuser, token);
 		this.progress = 50;
+		getPostList(tuser, token);
+		this.progress = 60;
 		getPost(tuser, token);
 		this.progress = 80;
 		FactoryDao.getDao(TistoryUserDao.class).update(tuser);
+		logger.info("[pull] The transaction table has been committed.");
 		this.progress = 100;
 	}
 
+	private void push(String token) {
+		status = BlogStatus.push;
+		this.message = "데이터가 블로그로 업데이트 됩니다.";
+		logger.info("[push] The tisotry contents will be push.");
+		List<Post> posts = FactoryDao.getDao(PostDao.class).selectToWaitingPost();
+		for (Post post : posts) {
+			try {
+				if ("-1".equals(post.getPostId())) {
+					logger.info("[push] The post data will be written");
+					writePost(token, post);
+				} else if (post.getIsdeleted()) {
+					logger.info("[push] The post data will be deleted");
+					deletePost(token, post);
+				} else {
+					logger.info("[push] The post data will be modified");
+					modifyPost(token, post);
+				}
+			} catch (Throwable e) {
+				logger.error("[push]", e);
+			}
+			post.setIsmodified(false);
+			FactoryDao.getDao(PostDao.class).update(post);
+			logger.info("[pull] The transaction table has been committed.");
+		}
+		String isPull = PropertyMap.getInstance().getProperty("config", "auto_pull");
+		if ("true".equals(isPull)) {
+			logger.info("[pull] The auto pull procedure will be started.");
+			pull(token);
+		}
+	}
+
+	private Post writePost(String token, Post post) throws FileNotFoundException, IOException {
+		return pushPost(token, post, true, false);
+	}
+
+	private Post modifyPost(String token, Post post) throws FileNotFoundException, IOException {
+		return pushPost(token, post, false, false);
+	}
+
+	private Post deletePost(String token, Post post) throws FileNotFoundException, IOException {
+		return pushPost(token, post, false, true);
+	}
+
+	private Post pushPost(String token, Post post, boolean newPost, boolean isDeleted) throws FileNotFoundException, IOException {
+		parameterBuffer.clear();
+		parameterBuffer.put("access_token", token);
+		parameterBuffer.put("output", "json");
+		if (!newPost) {
+			parameterBuffer.put("postId", post.getPostId());
+		}
+		parameterBuffer.put("blogName", post.getBlog().getName());
+		parameterBuffer.put("title", URLEncoder.encode(post.getTitle(), StandardCharsets.UTF_8.toString()));
+		File file = new File(post.getContentsPath());
+		if (!file.exists()) {
+			throw new FilerException(post.getContentsPath());
+		}
+		byte[] contents = new byte[(int) file.length()];
+		try (FileInputStream stream = new FileInputStream(post.getContentsPath())) {
+			stream.read(contents, 0, contents.length);
+		}
+		parameterBuffer.put("content", URLEncoder.encode(new String(contents, StandardCharsets.UTF_8.toString()), StandardCharsets.UTF_8.toString()));
+		if (!newPost && isDeleted) {
+			parameterBuffer.put("visibility", "0");
+		} else {
+			parameterBuffer.put("visibility", "3");
+		}
+		parameterBuffer.put("category", post.getCategoryId());
+		try {
+			if (!Util.StringIsEmptyOrNull(post.getTags())) {
+				Object[] tags = JsonConverter.parseObject(post.getTags(), (x) -> {
+					return x.getJsonArray("tag").toArray();
+				});
+				StringBuffer sb = new StringBuffer();
+				for (Object tag : tags) {
+					if (sb.length() != 0) {
+						sb.append(",");
+					}
+					sb.append(tag.toString().replace("\"", ""));
+				}
+				parameterBuffer.put("tag", URLEncoder.encode(sb.toString(), StandardCharsets.UTF_8.toString()));
+			}
+		} catch (RuntimeException e) {
+			logger.error("[pushPost]", e);
+			logger.error("[postPost] tag data : " + post.getTags());
+		}
+		String url;
+		if (newPost) {
+			url = "https://www.tistory.com/apis/post/write";
+		} else {
+			url = "https://www.tistory.com/apis/post/modify";
+		}
+
+		BlogApiConnection connection = BlogApiConnectionBuilder.instance().build(url, parameterBuffer, HttpMethod.POST);
+		JsonConverter.parseObject(connection.getResponse(), obj1 -> {
+			if (!JsonConverter.JsonIsKey(obj1, "tistory")) {
+				return;
+			}
+			JsonConverter.parseObject(obj1.get("tistory").toString(), obj2 -> {
+				if (JsonConverter.JsonIsKey(obj2, "postId")) {
+					post.setPostId(obj2.getString("postId"));
+				}
+				if (JsonConverter.JsonIsKey(obj2, "url")) {
+					post.setPostUrl(obj2.getString("url"));
+				}
+			});
+		});
+		return post;
+	}
+	// This here
 	private TistoryUser getBlog(String token) {
 		this.status = BlogStatus.blog;
 		final List<TistoryUser> memBuffer = new ArrayList<>(1);
 		parameterBuffer.clear();
 		parameterBuffer.put("access_token", token);
 		parameterBuffer.put("output", "json");
-		BlogApiConnection connection = BlogApiConnectionBuilder.instance().build("https://www.tistory.com/apis/blog/info", parameterBuffer);
+		BlogApiConnection connection = BlogApiConnectionBuilder.instance().build("https://www.tistory.com/apis/blog/info", parameterBuffer, HttpMethod.GET);
 		if (connection.getResponse() == null) {
 			this.status = BlogStatus.error;
 			this.message = "It's failed that get the blog info from tistory.";
@@ -307,7 +442,7 @@ public class BlogApiThread implements Runnable {
 			parameterBuffer.put("access_token", token);
 			parameterBuffer.put("output", "json");
 			parameterBuffer.put("blogName", blog.getName());
-			BlogApiConnection connection = BlogApiConnectionBuilder.instance().build("https://www.tistory.com/apis/category/list", parameterBuffer);
+			BlogApiConnection connection = BlogApiConnectionBuilder.instance().build("https://www.tistory.com/apis/category/list", parameterBuffer, HttpMethod.GET);
 			if (connection.getResponse() == null) {
 				continue;
 			}
@@ -375,7 +510,7 @@ public class BlogApiThread implements Runnable {
 				parameterBuffer.put("output", "json");
 				parameterBuffer.put("blogName", blog.getName());
 				parameterBuffer.put("page", String.valueOf(page));
-				BlogApiConnection connection = BlogApiConnectionBuilder.instance().build("https://www.tistory.com/apis/post/list", parameterBuffer);
+				BlogApiConnection connection = BlogApiConnectionBuilder.instance().build("https://www.tistory.com/apis/post/list", parameterBuffer, HttpMethod.GET);
 				if (connection.getResponse() == null) {
 					continue;
 				}
@@ -466,7 +601,7 @@ public class BlogApiThread implements Runnable {
 				parameterBuffer.put("output", "json");
 				parameterBuffer.put("blogName", blog.getName());
 				parameterBuffer.put("postId", post.getPostId());
-				BlogApiConnection connection = BlogApiConnectionBuilder.instance().build("https://www.tistory.com/apis/post/read", parameterBuffer);
+				BlogApiConnection connection = BlogApiConnectionBuilder.instance().build("https://www.tistory.com/apis/post/read", parameterBuffer, HttpMethod.GET);
 				defaultJsonStructor(connection.getResponse(), obj1 -> {
 					// contents
 					String filepath = "";
@@ -475,13 +610,13 @@ public class BlogApiThread implements Runnable {
 					} else {
 						filepath = post.getContentsPath();
 						File file = new File(filepath);
-						if(file.exists()) {
+						if (file.exists()) {
 							file.delete();
 						}
 					}
 					String contents = JsonConverter.JsonString(obj1, "content");
 					try (FileOutputStream stream = new FileOutputStream(filepath)) {
-						stream.write(contents.getBytes("UTF-8"));
+						stream.write(contents.getBytes(StandardCharsets.UTF_8.toString()));
 					} catch (Throwable e) {
 						e.printStackTrace();
 						return;
@@ -491,7 +626,12 @@ public class BlogApiThread implements Runnable {
 					post.setTitle(JsonConverter.JsonString(obj1, "title"));
 					post.setContentsPath(filepath);
 					post.setPostUrl(JsonConverter.JsonString(obj1, "postUrl"));
+					if ("0".equals(JsonConverter.JsonString(obj1, "visibility"))) {
+						post.setIsdeleted(true);
+					}
 					String date = JsonConverter.JsonString(obj1, "date");
+					// System.out.println(post.getPostId() + " - " + JsonConverter.JsonString(obj1,
+					// "visibility"));
 					try {
 						post.setDate(formatter.parse(date));
 					} catch (ParseException e) {

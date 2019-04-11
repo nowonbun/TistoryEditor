@@ -91,18 +91,22 @@
 						}
 						$side_menu.append($blog);
 					}
-					$side_menu.append("<li><a class='link_item' href='./admin.html'>관리</a></li>");
-					//console.log(data);
+					
+					var $admin_menu = $("<a class='link_item list_drop_item' href='javascript:void(0)'><i class='glyphicon pull-right menu-toggle glyphicon-triangle-bottom'></i>관리</a>");
+					var $admin_sub_ul = $("<ul class='sub_category_list off'></ul>");
+					$admin_sub_ul.append($("<li><a class='link_sub_item' href='./admin.html'>동기화</a></li>"));
+					$admin_sub_ul.append($("<li><a class='link_sub_item' href='./attachmentFile.html'>첨부 파일</a></li>"));
+					$admin_sub_ul.append($("<li><a class='link_sub_item' href='./deleteList.html'>삭제 파일 리스트</a></li>"));
+					$side_menu.append($("<li></li>").append($admin_menu).append($admin_sub_ul));
 					_common$.loading.off();
 				},
 				error : function(jqXHR, textStatus, errorThrown) {
 					console.log(jqXHR);
 					console.log(errorThrown);
-					toastr.error("system error!");
-					_common$.loading.off();
+					toastr.error("예상치 못한 에러가 발생했습니다. 로그를 확인해 주십시오.");
 				},
 				complete : function(jqXHR, textStatus) {
-
+					_common$.loading.off();
 				}
 			});
 		}

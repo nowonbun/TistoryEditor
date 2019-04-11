@@ -75,12 +75,12 @@ div.row>div {
 	</div>
 </div>
 <div class="row">
-	<div class="col-xs-12 col-sm-6">
+	<div class="col-xs-12 col-sm-12 col-md-6">
 		<input type="text" class="form-control" readonly="readonly" id="status">
 	</div>
 </div>
 <div class="row">
-	<div class="col-xs-12 col-sm-6">
+	<div class="col-xs-6 col-sm-12 col-md-6">
 		<div class="input-group">
 			<span class="input-group-addon">Last updated time</span>
 			<input id="timestamp" class="form-control" readonly="readonly">
@@ -88,7 +88,7 @@ div.row>div {
 	</div>
 </div>
 <div class="row">
-	<div class="col-xs-12 col-sm-6">
+	<div class="col-xs-6 col-sm-12 col-md-6">
 		<div class="progress">
 			<div class="progress-bar syc-progress" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
 		</div>
@@ -111,6 +111,13 @@ div.row>div {
 					//toastr.error('The sync is running!', 'Sync error');
 				}
 			});
+			$(".push-btn").on("click", function() {
+				if (!$(".card-btn").hasClass("disabled")) {
+					window.location.href = "./syncstart.auth?type=push";
+				} else {
+					//toastr.error('The sync is running!', 'Sync error');
+				}
+			});
 		},
 		onLoad : function() {
 			_admin$.sync.getStatus();
@@ -128,7 +135,7 @@ div.row>div {
 					error : function(jqXHR, textStatus, errorThrown) {
 						console.log(jqXHR);
 						console.log(errorThrown);
-						toastr.error("system error!");
+						toastr.error("예상치 못한 에러가 발생했습니다. 로그를 확인해 주십시오.");
 					},
 					complete : function(jqXHR, textStatus) {
 
@@ -137,7 +144,6 @@ div.row>div {
 			},
 			getStatus : function() {
 				_admin$.sync.ajax("./syncStatus.ajax", null, function(data) {
-					//console.log(data);
 					if (data.state !== "wait") {
 						$(".card-btn").addClass("disabled");
 						_admin$.isRunning = true;

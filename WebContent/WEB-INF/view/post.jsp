@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <jsp:include page="./particle/top.jsp"></jsp:include>
 <style>
 #title_txt {
@@ -33,10 +34,17 @@
 	</div>
 </div>
 <div class="row" style="margin-bottom: 20px;">
-	<div class="col-md-4 col-md-offset-8" style="text-align: right;">
-		<button class="btn btn-success" id="modify_btn">수정</button>
-		<button class="btn btn-danger" data-toggle="modal" data-target="#myModal">삭제</button>
-	</div>
+	<c:if test="${post.status eq true}">
+	    <div class="col-md-4 col-md-offset-8" style="text-align: right;">
+			<button class="btn btn-success" id="cancel_del_btn">삭제취소</button>
+		</div> 
+	</c:if>
+	<c:if test="${post.status eq false}">
+		<div class="col-md-4 col-md-offset-8" style="text-align: right;">
+			<button class="btn btn-success" id="modify_btn">수정</button>
+			<button class="btn btn-danger" data-toggle="modal" data-target="#myModal">삭제</button>
+		</div>    
+	</c:if>
 </div>
 <article class="entry">
 	<div class="titleArea">
@@ -83,8 +91,13 @@
 							location.href = $("#article_list_link").prop("href");
 						}
 					},
-					error : function(e) {
-
+					error : function(jqXHR, textStatus, errorThrown) {
+						console.log(jqXHR);
+						console.log(errorThrown);
+						toastr.error("예상치 못한 에러가 발생했습니다. 로그를 확인해 주십시오.");
+					},
+					complete : function(jqXHR, textStatus) {
+						_common$.loading.off();
 					}
 				});
 			});
@@ -128,8 +141,40 @@
 							location.href = $("#article_list_link").prop("href");
 						}
 					},
-					error : function(e) {
-
+					error : function(jqXHR, textStatus, errorThrown) {
+						console.log(jqXHR);
+						console.log(errorThrown);
+						toastr.error("예상치 못한 에러가 발생했습니다. 로그를 확인해 주십시오.");
+					},
+					complete : function(jqXHR, textStatus) {
+						_common$.loading.off();
+					}
+				});
+			});
+			$("#cancel_del_btn").on("click", function(){
+				_common$.loading.on();
+				$.ajax({
+					type : 'POST',
+					dataType : 'json',
+					data : {
+						idx : $("#idx").val(),
+						postId : $("#postId").val()
+					},
+					url : "./cancelDeletePost.ajax",
+					success : function(data) {
+						if (data.ret) {
+							toastr.success(data.message);
+							_common$.setQueueMessage("success", data.message);
+							location.href = $("#article_list_link").prop("href");
+						}
+					},
+					error : function(jqXHR, textStatus, errorThrown) {
+						console.log(jqXHR);
+						console.log(errorThrown);
+						toastr.error("예상치 못한 에러가 발생했습니다. 로그를 확인해 주십시오.");
+					},
+					complete : function(jqXHR, textStatus) {
+						_common$.loading.off();
 					}
 				});
 			});

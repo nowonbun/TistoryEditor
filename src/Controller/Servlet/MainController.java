@@ -2,10 +2,12 @@ package Controller.Servlet;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.annotation.processing.FilerException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -43,9 +45,9 @@ public class MainController extends AbstractServletController {
 
 	@RequestMapping(value = "/list.html", method = RequestMethod.GET)
 	public String list(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
-		String type = req.getParameter("type");
-		String id = req.getParameter("id");
 		try {
+			String type = req.getParameter("type");
+			String id = req.getParameter("id");
 			if (type == null || id == null) {
 				throw new RuntimeException();
 			}
@@ -71,18 +73,17 @@ public class MainController extends AbstractServletController {
 			modelmap.addAttribute("pType", type);
 			modelmap.addAttribute("pId", id);
 			modelmap.addAttribute("pageCount", Define.PAGE_MAX_COUNT);
+			return "list";
 		} catch (Throwable e) {
-			res.setStatus(403);
-			return null;
+			return error();
 		}
-		return "list";
 	}
 
 	@RequestMapping(value = "/post.html", method = RequestMethod.GET)
 	public String post(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
-		String idx = req.getParameter("idx");
-		String id = req.getParameter("id");
 		try {
+			String idx = req.getParameter("idx");
+			String id = req.getParameter("id");
 			if (idx == null || id == null) {
 				throw new RuntimeException();
 			}
@@ -99,13 +100,13 @@ public class MainController extends AbstractServletController {
 			bean.setTitle(post.getTitle());
 			File file = new File(post.getContentsPath());
 			if (!file.exists()) {
-				throw new RuntimeException();
+				throw new FilerException(post.getContentsPath());
 			}
 			byte[] contents = new byte[(int) file.length()];
 			try (FileInputStream stream = new FileInputStream(post.getContentsPath())) {
 				stream.read(contents, 0, contents.length);
 			}
-			bean.setContents(new String(contents, "UTF-8"));
+			bean.setContents(new String(contents, StandardCharsets.UTF_8.toString()));
 			bean.setCategory(post.getCategory().getLabel());
 			bean.setCategoryId(post.getCategory().getCategoryId());
 			try {
@@ -125,35 +126,57 @@ public class MainController extends AbstractServletController {
 			} catch (RuntimeException e) {
 
 			}
-
+			bean.setStatus(post.getIsdeleted());
 			bean.setDate(Util.convertDateFormat(post.getDate()));
 			modelmap.addAttribute("post", bean);
+			return "post";
 		} catch (Throwable e) {
-			res.setStatus(403);
-			return null;
+			return error();
 		}
-		return "post";
 	}
 
 	@RequestMapping(value = "/create.html", method = RequestMethod.GET)
 	public String create(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
-		List<Category> listbuffer = FactoryDao.getDao(CategoryDao.class).selectAll();
-		List<Category> list = listbuffer.stream()
-				.filter(x -> !Util.StringIsEmptyOrNull(x.getParent())
-						|| (Util.StringIsEmptyOrNull(x.getParent()) && !listbuffer.stream().filter(y -> Util.StringEquals(y.getParent(), x.getCategoryId())).findAny().isPresent()))
-				.collect(Collectors.toList());
-		List<SelectBean> selectobject = new ArrayList<>();
-		SelectBean option = new SelectBean();
-		option.setValue("-1");
-		option.setText("<-- 카테고리 선택해 주십시오. -->");
-		selectobject.add(option);
-		for (Category item : list) {
-			option = new SelectBean();
-			option.setValue(Integer.toString(item.getIdx()));
-			option.setText(item.getLabel());
+		try {
+			List<Category> listbuffer = FactoryDao.getDao(CategoryDao.class).selectAll();
+			List<Category> list = listbuffer.stream()
+					.filter(x -> !Util.StringIsEmptyOrNull(x.getParent())
+							|| (Util.StringIsEmptyOrNull(x.getParent()) && !listbuffer.stream().filter(y -> Util.StringEquals(y.getParent(), x.getCategoryId())).findAny().isPresent()))
+					.collect(Collectors.toList());
+			List<SelectBean> selectobject = new ArrayList<>();
+			SelectBean option = new SelectBean();
+			option.setValue("-1");
+			option.setText("<-- 카테고리 선택해 주십시오. -->");
 			selectobject.add(option);
+			for (Category item : list) {
+				option = new SelectBean();
+				option.setValue(Integer.toString(item.getIdx()));
+				option.setText(item.getLabel());
+				selectobject.add(option);
+			}
+			modelmap.addAttribute("categoryselect", selectobject);
+			return "create";
+		} catch (Throwable e) {
+			return error();
 		}
-		modelmap.addAttribute("categoryselect", selectobject);
-		return "create";
+	}
+
+	@RequestMapping(value = "/deleteList.html", method = RequestMethod.GET)
+	public String deleteList(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
+		try {
+			long count = FactoryDao.getDao(PostDao.class).getCountToDelete();
+			modelmap.addAttribute("title", "삭제 리스트");
+			modelmap.addAttribute("count", count);
+			modelmap.addAttribute("pageCount", Define.PAGE_MAX_COUNT);
+			return "deleteList";
+		} catch (Throwable e) {
+			return error();
+		}
+	}
+
+	@RequestMapping(value = "/error.html", method = RequestMethod.GET)
+	public String error(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
+		modelmap.addAttribute("message", "에러가 발생했습니다.<br />관리자에게 문의해 주십시오.");
+		return "error";
 	}
 }

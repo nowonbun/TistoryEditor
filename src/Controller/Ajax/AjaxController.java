@@ -2,6 +2,7 @@ package Controller.Ajax;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -84,7 +85,7 @@ public class AjaxController extends AbstractAjaxController {
 			}
 			returnJson(res, injectListBean(posts));
 		} catch (Throwable e) {
-			res.setStatus(403);
+			res.setStatus(406);
 		}
 	}
 
@@ -98,6 +99,15 @@ public class AjaxController extends AbstractAjaxController {
 			bean.setPostUrl(post.getPostUrl());
 			bean.setTags(post.getTags());
 			bean.setDate(Util.convertDateFormat(post.getDate()));
+			if ("-1".equals(post.getPostId()) && post.getIsmodified()) {
+				bean.setStatus(1);
+			} else if (post.getIsmodified() && post.getIsdeleted()) {
+				bean.setStatus(3);
+			} else if (post.getIsmodified()) {
+				bean.setStatus(2);
+			} else {
+				bean.setStatus(0);
+			}
 			ret.add(bean);
 		}
 		return ret;
@@ -148,12 +158,12 @@ public class AjaxController extends AbstractAjaxController {
 			}
 			file.renameTo(newFile);
 			try (FileOutputStream stream = new FileOutputStream(post.getContentsPath())) {
-				stream.write(contents.getBytes("UTF-8"));
+				stream.write(contents.getBytes(StandardCharsets.UTF_8.toString()));
 			}
 
 			OKAjax(res, "포스트가 수정되었습니다.");
 		} catch (Throwable e) {
-			res.setStatus(403);
+			res.setStatus(406);
 		}
 	}
 
@@ -179,9 +189,37 @@ public class AjaxController extends AbstractAjaxController {
 			post.setIsdeleted(true);
 			post.setLastupdateddate(new Date());
 			FactoryDao.getDao(PostDao.class).update(post);
-			OKAjax(res, "포스트가 삭제되었습니다.");
+			OKAjax(res, "포스트가 삭제 되었습니다.");
 		} catch (Throwable e) {
-			res.setStatus(403);
+			res.setStatus(406);
+		}
+	}
+
+	@RequestMapping(value = "/cancelDeletePost.ajax")
+	public void cancelDeletePost(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
+		String idx = req.getParameter("idx");
+		String postId = req.getParameter("postId");
+		try {
+			if (idx == null || postId == null) {
+				throw new RuntimeException();
+			}
+			int pIdx = 0;
+			try {
+				pIdx = Integer.parseInt(idx);
+			} catch (NumberFormatException e) {
+				throw new RuntimeException();
+			}
+			Post post = FactoryDao.getDao(PostDao.class).selectByIdx(pIdx, postId);
+			if (post == null) {
+				throw new RuntimeException();
+			}
+			post.setIsmodified(true);
+			post.setIsdeleted(false);
+			post.setLastupdateddate(new Date());
+			FactoryDao.getDao(PostDao.class).update(post);
+			OKAjax(res, "포스트가 삭제 취소 되었습니다.");
+		} catch (Throwable e) {
+			res.setStatus(406);
 		}
 	}
 
@@ -240,7 +278,7 @@ public class AjaxController extends AbstractAjaxController {
 				}
 			}
 			try (FileOutputStream stream = new FileOutputStream(filepath)) {
-				stream.write(contents.getBytes("UTF-8"));
+				stream.write(contents.getBytes(StandardCharsets.UTF_8.toString()));
 			} catch (Throwable e) {
 				e.printStackTrace();
 				return;
@@ -250,7 +288,7 @@ public class AjaxController extends AbstractAjaxController {
 			FactoryDao.getDao(PostDao.class).create(post);
 			OKAjax(res, "포스트가 추가되었습니다.");
 		} catch (Throwable e) {
-			res.setStatus(403);
+			res.setStatus(406);
 		}
 	}
 
@@ -270,7 +308,7 @@ public class AjaxController extends AbstractAjaxController {
 			List<Post> posts = FactoryDao.getDao(PostDao.class).selectToWaitingPost(pagenumber * Define.PAGE_MAX_COUNT, Define.PAGE_MAX_COUNT);
 			returnJson(res, injectListBean(posts));
 		} catch (Throwable e) {
-			res.setStatus(403);
+			res.setStatus(406);
 		}
 	}
 
@@ -289,7 +327,27 @@ public class AjaxController extends AbstractAjaxController {
 			}
 			OKAjax(res, "등록 대기 리스트가 초기화 되었습니다.");
 		} catch (Throwable e) {
-			res.setStatus(403);
+			res.setStatus(406);
+		}
+	}
+
+	@RequestMapping(value = "/deleteList.ajax")
+	public void deleteList(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
+		String page = req.getParameter("page");
+		try {
+			if (page == null) {
+				throw new RuntimeException();
+			}
+			int pagenumber = 0;
+			try {
+				pagenumber = Integer.parseInt(page);
+			} catch (NumberFormatException e) {
+				throw new RuntimeException();
+			}
+			List<Post> posts = FactoryDao.getDao(PostDao.class).selectToDelete(pagenumber * Define.PAGE_MAX_COUNT, Define.PAGE_MAX_COUNT);
+			returnJson(res, injectListBean(posts));
+		} catch (Throwable e) {
+			res.setStatus(406);
 		}
 	}
 }

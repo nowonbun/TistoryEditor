@@ -23,7 +23,7 @@
 	<header>
 		<nav class="navbar navbar-inverse">
 			<div class="navbar-header">
-				<a class="navbar-brand menu-click" data-menu-type="open" href="javascript:void(0);"> <span class="menuSpan">MENU</span></a> <a class="navbar-brand title" href="/"> <span>Tistory editor</span>
+				<a class="navbar-brand menu-click" data-menu-type="open" href="javascript:void(0);"> <span class="menuSpan">MENU</span></a> <a class="navbar-brand title" href="./"> <span>Tistory editor</span>
 				</a>
 			</div>
 		</nav>

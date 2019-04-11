@@ -1,31 +1,78 @@
 package BlogApi;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URLConnection;
-
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
 
+import org.apache.log4j.Logger;
+import org.springframework.http.HttpMethod;
+
+import Common.LoggerManager;
+import Common.PropertyMap;
+import Common.Util;
+
 public class BlogApiConnection {
-	private HttpsURLConnection connection;
+	private Logger logger = LoggerManager.getLogger(BlogApiConnection.class);
 	private String response = null;
 	private String error = null;
 
-	public BlogApiConnection(URLConnection connection) {
-		this.connection = (HttpsURLConnection) connection;
-		this.run();
+	public BlogApiConnection(String url, String parameter, HttpMethod method) {
+		try {
+			if (Util.StringIsEmptyOrNull(parameter)) {
+				parameter = "";
+			}
+			HttpsURLConnection connection;
+			if (method == HttpMethod.GET) {
+				url = url + "?" + parameter;
+				connection = getConnection(url);
+				connection.setRequestMethod(HttpMethod.GET.toString());
+				connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+				connection.setUseCaches(false);
+				connection.setDoInput(true);
+				connection.setDoOutput(false);
+			} else if (method == HttpMethod.POST) {
+				connection = getConnection(url);
+				connection.setRequestMethod(HttpMethod.POST.toString());
+				connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+				connection.setUseCaches(false);
+				connection.setDoInput(true);
+				connection.setDoOutput(true);
+				try (DataOutputStream wr = new DataOutputStream(connection.getOutputStream())) {
+					wr.writeBytes(parameter);
+					wr.flush();
+				}
+			} else {
+				logger.error("[Constructor] The request method was not supproted.");
+				throw new UnsupportedOperationException();
+			}
+			this.run(connection);
+		} catch (Throwable e) {
+			logger.error("[Constructor]", e);
+			throw new RuntimeException(e);
+		}
 	}
 
-	private void run() {
-		try {
-			this.connection.setRequestMethod("GET");
-			this.connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-			this.connection.setUseCaches(false);
-			this.connection.setDoInput(true);
-			this.connection.setDoOutput(false);
+	private HttpsURLConnection getConnection(String url) throws IOException {
+		URL obj = new URL(url);
+		String proxy = PropertyMap.getInstance().getProperty("config", "proxy");
+		int port = PropertyMap.getInstance().getPropertyInt("config", "proxy_port");
+		if (Util.StringIsEmptyOrNull(proxy)) {
+			return (HttpsURLConnection) obj.openConnection();
+		}
+		logger.info("[getConnection] Proxy mode");
+		return (HttpsURLConnection) obj.openConnection(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxy, port)));
+	}
 
+	private void run(HttpsURLConnection connection) {
+		try {
 			int resCode = connection.getResponseCode();
+			logger.info("[run] State Code : " + resCode);
 			InputStream is = null;
 			try {
 				if (resCode == 200) {
@@ -45,6 +92,7 @@ public class BlogApiConnection {
 							this.response = response.toString();
 						} else {
 							this.error = response.toString();
+							logger.error("[run] Error message : " + this.error);
 						}
 					}
 				}
@@ -54,14 +102,14 @@ public class BlogApiConnection {
 				}
 			}
 		} catch (Throwable e) {
-			e.printStackTrace();
+			logger.error("[run]", e);
 		}
 	}
 
 	public String getResponse() {
 		return this.response;
 	}
-	
+
 	public String getError() {
 		return this.error;
 	}

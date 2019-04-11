@@ -73,8 +73,13 @@
 							location.href = "./main.html";
 						}
 					},
-					error : function(e) {
-
+					error : function(jqXHR, textStatus, errorThrown) {
+						console.log(jqXHR);
+						console.log(errorThrown);
+						toastr.error("예상치 못한 에러가 발생했습니다. 로그를 확인해 주십시오.");
+					},
+					complete : function(jqXHR, textStatus) {
+						_common$.loading.off();
 					}
 				});
 			});

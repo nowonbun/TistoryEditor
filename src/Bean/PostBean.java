@@ -10,6 +10,7 @@ public class PostBean {
 	private String category;
 	private String tags;
 	private String date;
+	private boolean status;
 
 	public int getIdx() {
 		return idx;
@@ -81,6 +82,14 @@ public class PostBean {
 
 	public void setCategoryId(String categoryId) {
 		this.categoryId = categoryId;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
 	}
 
 }

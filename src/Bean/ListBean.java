@@ -7,6 +7,13 @@ public class ListBean {
 	private String postUrl;
 	private String tags;
 	private String date;
+	/***
+	 * 0 - Default
+	 * 1 - New
+	 * 2 - Modified
+	 * 3 - Deleted
+	 */
+	private int status;
 
 	public int getPostIdx() {
 		return postIdx;
@@ -54,6 +61,14 @@ public class ListBean {
 
 	public void setDate(String date) {
 		this.date = date;
+	}
+
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
 	}
 
 }

@@ -19,20 +19,13 @@ public class LoginController extends AbstractServletController {
 	public String index(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
 		String isLogin = PropertyMap.getInstance().getProperty("config", "login");
 		if (!Util.StringIsEmptyOrNull(isLogin) && "false".equals(isLogin.toLowerCase())) {
+			getLogger().info("[index] No login Mode");
 			session.setAttribute(Define.USER_SESSION_NAME, new UserBean());
 		}
 		if (super.getCurrentUser(session) != null) {
+			getLogger().info("[index] The signin was already.");
 			return redirect("main.html");
 		}
-		// TODO: If have not the cookie key of database, this is not able to cookie
-		// auth.
-		/*
-		 * Cookie cookie = getCookie(req, Define.COOKIE_KEY); if (cookie != null) {
-		 * String key = cookie.getValue(); if (loginCookie != null) {
-		 * session.setAttribute(Define.USER_SESSION_NAME, loginCookie.getUser()); return
-		 * "redirect:main.html"; } cookie.setPath(Util.getCookiePath());
-		 * cookie.setMaxAge(0); res.addCookie(cookie); }
-		 */
 		return "index";
 	}
 
@@ -49,13 +42,18 @@ public class LoginController extends AbstractServletController {
 			session.setAttribute(Define.USER_SESSION_NAME, user);
 			return redirect("main.html");
 		}
-		res.setStatus(403);
-		return null;
+		return redirect("loginfailed.html");
 	}
 
 	@RequestMapping(value = "/logout.html", method = RequestMethod.GET)
 	public String logout(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
 		session.setAttribute(Define.USER_SESSION_NAME, null);
 		return redirect("index.html");
+	}
+
+	@RequestMapping(value = "/loginfailed.html", method = RequestMethod.GET)
+	public String loginfailed(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
+		modelmap.addAttribute("message", "로그인에 실패하였습니다.");
+		return redirect("error.html");
 	}
 }
