@@ -155,6 +155,9 @@ public class BlogApiThread implements Runnable {
 						logger.info("[run] The push procedure will be started.");
 						push(access_token);
 					}
+				} catch (Throwable e) {
+					status = BlogStatus.error;
+					logger.error("[run]", e);
 				} finally {
 					status = BlogStatus.wait;
 					this.message = "";
@@ -215,6 +218,9 @@ public class BlogApiThread implements Runnable {
 		logger.info("[pull] The post table was initialize.");
 		this.progress = 30;
 		TistoryUser tuser = getBlog(token);
+		if (tuser == null) {
+			return;
+		}
 		this.progress = 40;
 		getCategory(tuser, token);
 		this.progress = 50;
@@ -335,7 +341,7 @@ public class BlogApiThread implements Runnable {
 		});
 		return post;
 	}
-	// This here
+
 	private TistoryUser getBlog(String token) {
 		this.status = BlogStatus.blog;
 		final List<TistoryUser> memBuffer = new ArrayList<>(1);
@@ -345,7 +351,8 @@ public class BlogApiThread implements Runnable {
 		BlogApiConnection connection = BlogApiConnectionBuilder.instance().build("https://www.tistory.com/apis/blog/info", parameterBuffer, HttpMethod.GET);
 		if (connection.getResponse() == null) {
 			this.status = BlogStatus.error;
-			this.message = "It's failed that get the blog info from tistory.";
+			this.message = "Http 커넥션으로부터 Blog 데이터를 취득하지 못했습니다.";
+			logger.error("[getBlog] It's failed that get the blog info from tistory.");
 			return null;
 		}
 		defaultJsonStructor(connection.getResponse(), obj1 -> {
@@ -371,7 +378,8 @@ public class BlogApiThread implements Runnable {
 			JsonConverter.parseArray(obj1.get("blogs").toString(), obj2 -> {
 				setCount(1, obj2.size());
 				obj2.forEach(obj3 -> {
-					this.message = "The blog progress " + countBuffer.get(0) + "/" + countBuffer.get(1);
+					this.message = "Blog 취득 진행률 " + countBuffer.get(0) + "/" + countBuffer.get(1);
+					logger.info("[getBlog] The blog progress " + countBuffer.get(0) + "/" + countBuffer.get(1));
 					setCount(countBuffer.get(0) + 1, countBuffer.get(1));
 					JsonConverter.parseObject(obj3.toString(), obj4 -> {
 						if (JsonConverter.JsonStringIsEmptyOrNull(obj4, "name")) {
@@ -444,12 +452,13 @@ public class BlogApiThread implements Runnable {
 			parameterBuffer.put("blogName", blog.getName());
 			BlogApiConnection connection = BlogApiConnectionBuilder.instance().build("https://www.tistory.com/apis/category/list", parameterBuffer, HttpMethod.GET);
 			if (connection.getResponse() == null) {
+				this.message = "Http 커넥션으로부터 Category 데이터를 취득하지 못했습니다.";
+				logger.error("[getCategory] It's failed that get the category info from tistory.");
 				continue;
 			}
 			if (blog.getCategories() == null) {
 				blog.setCategories(new ArrayList<>());
 			}
-
 			// category
 			defaultJsonStructor(connection.getResponse(), obj1 -> {
 				if (!JsonConverter.JsonIsKey(obj1, "categories")) {
@@ -458,7 +467,8 @@ public class BlogApiThread implements Runnable {
 				JsonConverter.parseArray(obj1.get("categories").toString(), obj2 -> {
 					setCount(1, obj2.size());
 					obj2.forEach(obj3 -> {
-						this.message = "The category progress " + countBuffer.get(0) + "/" + countBuffer.get(1);
+						this.message = "Category 취득 진행률 " + countBuffer.get(0) + "/" + countBuffer.get(1);
+						logger.info("[getCategory] The category progress " + countBuffer.get(0) + "/" + countBuffer.get(1));
 						setCount(countBuffer.get(0) + 1, countBuffer.get(1));
 						JsonConverter.parseObject(obj3.toString(), obj4 -> {
 							String id = JsonConverter.JsonString(obj4, "id");
@@ -498,7 +508,8 @@ public class BlogApiThread implements Runnable {
 
 	private TistoryUser getPostList(TistoryUser tuser, String token) {
 		this.status = BlogStatus.postlist;
-		this.message = "The blog list is getting.";
+		this.message = "포스트 리스트를 취득합니다.";
+		logger.info("[getPostList] It will be get the post list.");
 		for (Blog blog : tuser.getBlogs()) {
 			int page = 0;
 			final List<Boolean> continueMem = new ArrayList<>(1);
@@ -512,6 +523,8 @@ public class BlogApiThread implements Runnable {
 				parameterBuffer.put("page", String.valueOf(page));
 				BlogApiConnection connection = BlogApiConnectionBuilder.instance().build("https://www.tistory.com/apis/post/list", parameterBuffer, HttpMethod.GET);
 				if (connection.getResponse() == null) {
+					this.message = "Http 커넥션으로부터 Post 데이터를 취득하지 못했습니다.";
+					logger.error("[getPostList] It's failed that get the post info from tistory.");
 					continue;
 				}
 				if (blog.getPosts() == null) {
@@ -588,7 +601,8 @@ public class BlogApiThread implements Runnable {
 		for (Blog blog : tuser.getBlogs()) {
 			setCount(1, blog.getPosts().size());
 			for (Post post : blog.getPosts()) {
-				this.message = "The post progress " + countBuffer.get(0) + "/" + countBuffer.get(1);
+				this.message = "포스트 취득 진행률 " + countBuffer.get(0) + "/" + countBuffer.get(1);
+				logger.info("[getPost] The post progress " + countBuffer.get(0) + "/" + countBuffer.get(1));
 				setCount(countBuffer.get(0) + 1, countBuffer.get(1));
 				if (post.getIsdeleted()) {
 					continue;
@@ -603,7 +617,6 @@ public class BlogApiThread implements Runnable {
 				parameterBuffer.put("postId", post.getPostId());
 				BlogApiConnection connection = BlogApiConnectionBuilder.instance().build("https://www.tistory.com/apis/post/read", parameterBuffer, HttpMethod.GET);
 				defaultJsonStructor(connection.getResponse(), obj1 -> {
-					// contents
 					String filepath = "";
 					if (Util.StringIsEmptyOrNull(post.getContentsPath())) {
 						filepath = path + File.separator + Util.createCookieKey();
@@ -618,7 +631,7 @@ public class BlogApiThread implements Runnable {
 					try (FileOutputStream stream = new FileOutputStream(filepath)) {
 						stream.write(contents.getBytes(StandardCharsets.UTF_8.toString()));
 					} catch (Throwable e) {
-						e.printStackTrace();
+						logger.error("[getPost]  ", e);
 						return;
 					}
 					post.setUrl(JsonConverter.JsonString(obj1, "url"));
@@ -630,14 +643,15 @@ public class BlogApiThread implements Runnable {
 						post.setIsdeleted(true);
 					}
 					String date = JsonConverter.JsonString(obj1, "date");
-					// System.out.println(post.getPostId() + " - " + JsonConverter.JsonString(obj1,
-					// "visibility"));
 					try {
 						post.setDate(formatter.parse(date));
 					} catch (ParseException e) {
-						e.printStackTrace();
+						logger.error("[getPost]", e);
 					}
 					post.setTags(obj1.get("tags").toString());
+					logger.info("[getPost] postId : " + post.getPostId());
+					logger.info("[getPost] title : " + post.getTitle());
+					logger.info("[getPost] visibility : " + JsonConverter.JsonString(obj1, "visibility"));
 				});
 			}
 		}
