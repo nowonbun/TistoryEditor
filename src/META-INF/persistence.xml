@@ -8,6 +8,8 @@
 		<class>Model.OauthInfo</class>
 		<class>Model.Post</class>
 		<class>Model.TistoryUser</class>
+		<class>Model.Content</class>
+		<class>Model.Attachment</class>
 		<shared-cache-mode>NONE</shared-cache-mode>
 		<properties>
 			<property name="eclipselink.query-results-cache" value="false"/>

@@ -1,9 +1,6 @@
 package BlogApi;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -16,13 +13,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
-
-import javax.annotation.processing.FilerException;
 import javax.json.JsonObject;
-
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpMethod;
-
 import Common.FactoryDao;
 import Common.JsonConverter;
 import Common.LoggerManager;
@@ -32,6 +25,7 @@ import Common.IF.ActionExpression;
 import Dao.BlogDao;
 import Dao.BlogStatisticDao;
 import Dao.CategoryDao;
+import Dao.ContentDao;
 import Dao.OauthInfoDao;
 import Dao.PostDao;
 import Dao.TistoryUserDao;
@@ -39,6 +33,7 @@ import Model.AccessToken;
 import Model.Blog;
 import Model.BlogStatistic;
 import Model.Category;
+import Model.Content;
 import Model.OauthInfo;
 import Model.Post;
 import Model.TistoryUser;
@@ -285,15 +280,7 @@ public class BlogApiThread implements Runnable {
 		}
 		parameterBuffer.put("blogName", post.getBlog().getName());
 		parameterBuffer.put("title", URLEncoder.encode(post.getTitle(), StandardCharsets.UTF_8.toString()));
-		File file = new File(post.getContentsPath());
-		if (!file.exists()) {
-			throw new FilerException(post.getContentsPath());
-		}
-		byte[] contents = new byte[(int) file.length()];
-		try (FileInputStream stream = new FileInputStream(post.getContentsPath())) {
-			stream.read(contents, 0, contents.length);
-		}
-		parameterBuffer.put("content", URLEncoder.encode(new String(contents, StandardCharsets.UTF_8.toString()), StandardCharsets.UTF_8.toString()));
+		parameterBuffer.put("content", URLEncoder.encode(post.getContent().getContents(), StandardCharsets.UTF_8.toString()));
 		if (!newPost && isDeleted) {
 			parameterBuffer.put("visibility", "0");
 		} else {
@@ -592,11 +579,6 @@ public class BlogApiThread implements Runnable {
 	}
 
 	private TistoryUser getPost(TistoryUser tuser, String token) {
-		String path = PropertyMap.getInstance().getProperty("config", "contents_path");
-		File dir = new File(path);
-		if (!(dir.exists() && dir.isDirectory())) {
-			dir.mkdir();
-		}
 		this.status = BlogStatus.post;
 		for (Blog blog : tuser.getBlogs()) {
 			setCount(1, blog.getPosts().size());
@@ -617,27 +599,38 @@ public class BlogApiThread implements Runnable {
 				parameterBuffer.put("postId", post.getPostId());
 				BlogApiConnection connection = BlogApiConnectionBuilder.instance().build("https://www.tistory.com/apis/post/read", parameterBuffer, HttpMethod.GET);
 				defaultJsonStructor(connection.getResponse(), obj1 -> {
-					String filepath = "";
-					if (Util.StringIsEmptyOrNull(post.getContentsPath())) {
-						filepath = path + File.separator + Util.createCookieKey();
-					} else {
-						filepath = post.getContentsPath();
-						File file = new File(filepath);
-						if (file.exists()) {
-							file.delete();
-						}
-					}
-					String contents = JsonConverter.JsonString(obj1, "content");
-					try (FileOutputStream stream = new FileOutputStream(filepath)) {
-						stream.write(contents.getBytes(StandardCharsets.UTF_8.toString()));
-					} catch (Throwable e) {
-						logger.error("[getPost]  ", e);
-						return;
-					}
 					post.setUrl(JsonConverter.JsonString(obj1, "url"));
 					post.setSecondaryUrl(JsonConverter.JsonString(obj1, "secondaryUrl"));
 					post.setTitle(JsonConverter.JsonString(obj1, "title"));
-					post.setContentsPath(filepath);
+//					try {
+//						post.setTitle(URLDecoder.decode(JsonConverter.JsonString(obj1, "title"), StandardCharsets.UTF_8.toString()));
+//					} catch (Throwable e1) {
+//						logger.error("[getPost] Title : " + JsonConverter.JsonString(obj1, "Throwable"));
+//						logger.error("[getPost]", e1);
+//						post.setTitle(" ");
+//					}
+					Content content = post.getContent();
+					if (content != null) {
+						content.setIsdeleted(true);
+						FactoryDao.getDao(ContentDao.class).update(content);
+					}
+
+					content = new Content();
+					content.setPostId(post.getPostId());
+					content.setContents(JsonConverter.JsonString(obj1, "content"));
+					//
+					// try {
+					// content.setContents(URLDecoder.decode(JsonConverter.JsonString(obj1,
+					// "content"), StandardCharsets.UTF_8.toString()));
+					// } catch (Throwable e1) {
+					// logger.error("[getPost] contents : " + JsonConverter.JsonString(obj1,
+					// "content"));
+					// logger.error("[getPost]", e1);
+					// content.setContents(" ");
+					// }
+					content.setIsdeleted(false);
+					content.setCreateddate(new Date());
+					post.setContent(content);
 					post.setPostUrl(JsonConverter.JsonString(obj1, "postUrl"));
 					if ("0".equals(JsonConverter.JsonString(obj1, "visibility"))) {
 						post.setIsdeleted(true);
