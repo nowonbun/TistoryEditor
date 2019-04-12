@@ -7,7 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Tistory Editor</title>
 <link rel="stylesheet" href="./css/login.css">
-<meta name="google-signin-client_id" content="220458850151-v238vlakgd2c4n3dho9o76sc7u9a5ovb.apps.googleusercontent.com">
+<!--meta name="google-signin-client_id" content="220458850151-v238vlakgd2c4n3dho9o76sc7u9a5ovb.apps.googleusercontent.com"-->
+<meta name="google-signin-client_id" content="220458850151-a1ie3vnmqu4fac5pumled00g584vlipm.apps.googleusercontent.com">
 </head>
 <body>
 	<div class="container">
