@@ -76,7 +76,7 @@
 						var post = data[i];
 						var $article = $($(".list-article").html());
 						$article.find(".list-link").prop("href", "./post.html?idx=" + post.postIdx + "&id=" + post.postId);
-						$article.find(".ci-link").text(post.title);
+						$article.find(".ci-link").html(post.title);
 						$article.find(".p-category").prop("href", post.postUrl);
 						try {
 							$article.find(".tag-column").text("tag - " + JSON.parse(post.tags).tag.toString());

@@ -137,7 +137,7 @@
 						var post = data[i];
 						var $article = $($(".list-article").html());
 						$article.find(".list-link").prop("href", "./post.html?idx=" + post.postIdx + "&id=" + post.postId);
-						$article.find(".ci-link").text(post.title);
+						$article.find(".ci-link").html(post.title);
 						$status = $("<span class='post-status'></span>");
 						if (post.status === 1) {
 							$status.addClass("bg-info");
