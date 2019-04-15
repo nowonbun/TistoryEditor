@@ -16,6 +16,10 @@
 <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
 <link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.11/summernote.css">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/rainbow.min.css">
+<link rel="stylesheet" href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="./css/highlight.init.css" >
+<link rel="stylesheet" type="text/css" href="./css/post.css">
 <link rel="stylesheet" type="text/css" href="./css/blog/nowonbun.css">
 <link rel="stylesheet" type="text/css" href="./css/blog/loader.css">
 </head>
@@ -46,6 +50,6 @@
 	<section class="backgroundLayout menu-click" data-menu-type="open"></section>
 	<div class="loader off"></div>
 	<section class="loader-layout off"></section>
-	<main> <!-- start:main --> <!-- main-container	 -->
-		<div id="main" class="main-container">
+	<main role="main"> <!-- start:main --> <!-- main-container	 -->
+		<div id="main" class="main-container container">
 		<!-- 메인 -->

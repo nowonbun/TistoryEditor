@@ -22,4 +22,13 @@ public class AttachmentDao extends TransactionDao<Attachment> {
 			}
 		});
 	}
+
+	@SuppressWarnings("unchecked")
+	public List<Attachment> selectAll() {
+		return transaction((em) -> {
+			Query query = em.createQuery("SELECT a FROM Attachment a where a.isdeleted = false order by a.idx desc");
+			return (List<Attachment>) query.getResultList();
+		});
+	}
+
 }

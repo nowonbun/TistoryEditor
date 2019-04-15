@@ -32,6 +32,7 @@ public class BlogApiConnectionBuilder {
 			}
 			param += key + "=" + parameter.get(key);
 		}
+
 		try {
 			logger.info("[build] The http connection will be allocated.");
 			logger.info("[build] url : " + url);

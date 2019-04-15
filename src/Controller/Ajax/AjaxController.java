@@ -9,6 +9,9 @@ import javax.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import Bean.AttachmentBean;
+import Bean.AttachmentListBean;
 import Bean.ListBean;
 import Bean.MenuBean;
 import Bean.SyncStateBean;
@@ -18,10 +21,12 @@ import Common.AbstractAjaxController;
 import Common.Define;
 import Common.FactoryDao;
 import Common.Util;
+import Dao.AttachmentDao;
 import Dao.BlogDao;
 import Dao.CategoryDao;
 import Dao.ContentDao;
 import Dao.PostDao;
+import Model.Attachment;
 import Model.Blog;
 import Model.Category;
 import Model.Content;
@@ -349,6 +354,30 @@ public class AjaxController extends AbstractAjaxController {
 			returnJson(res, injectListBean(posts));
 		} catch (Throwable e) {
 			getLogger().error("[deleteList]", e);
+			res.setStatus(406);
+		}
+	}
+
+	@RequestMapping(value = "/attachmentList.ajax")
+	public void attachmentList(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
+		getLogger().info("[attachmentList] request!");
+		try {
+			List<Attachment> list = FactoryDao.getDao(AttachmentDao.class).selectAll();
+			AttachmentListBean ret = new AttachmentListBean();
+			ret.setData(new ArrayList<>());
+			for (Attachment item : list) {
+				AttachmentBean bean = new AttachmentBean();
+				ret.getData().add(bean);
+				bean.setIdx(item.getIdx());
+				bean.setPostId(item.getPostId());
+				bean.setLink(item.getLink());
+				bean.setObjectData("");
+				bean.setDate(Util.convertDateFormat(item.getCreateddate()));
+				bean.setState("");
+			}
+			returnJson(res, ret);
+		} catch (Throwable e) {
+			getLogger().error("[attachmentList]", e);
 			res.setStatus(406);
 		}
 	}

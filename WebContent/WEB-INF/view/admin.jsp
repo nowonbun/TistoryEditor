@@ -80,7 +80,7 @@ div.row>div {
 	</div>
 </div>
 <div class="row">
-	<div class="col-xs-6 col-sm-12 col-md-6">
+	<div class="col-xs-12 col-sm-12 col-md-6">
 		<div class="input-group">
 			<span class="input-group-addon">Last updated time</span>
 			<input id="timestamp" class="form-control" readonly="readonly">
@@ -88,7 +88,7 @@ div.row>div {
 	</div>
 </div>
 <div class="row">
-	<div class="col-xs-6 col-sm-12 col-md-6">
+	<div class="col-xs-12 col-sm-12 col-md-6">
 		<div class="progress">
 			<div class="progress-bar syc-progress" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
 		</div>

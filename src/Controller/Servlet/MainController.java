@@ -182,6 +182,12 @@ public class MainController extends AbstractServletController {
 			return error();
 		}
 	}
+	
+	@RequestMapping(value = "/attachmentFile.html", method = RequestMethod.GET)
+	public String attachmentFile(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
+		
+		return "attachmentFile";
+	}
 
 	@RequestMapping(value = "/error.html", method = RequestMethod.GET)
 	public String error(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {

@@ -33,40 +33,41 @@
 		</div>
 	</div>
 </div>
-<div class="row" style="margin-bottom: 20px;">
-	<c:if test="${post.status eq true}">
-	    <div class="col-md-4 col-md-offset-8" style="text-align: right;">
-			<button class="btn btn-success" id="cancel_del_btn">삭제취소</button>
-		</div> 
-	</c:if>
-	<c:if test="${post.status eq false}">
-		<div class="col-md-4 col-md-offset-8" style="text-align: right;">
-			<button class="btn btn-success" id="modify_btn">수정</button>
-			<button class="btn btn-danger" data-toggle="modal" data-target="#myModal">삭제</button>
-		</div>    
-	</c:if>
+<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+	<div class="row" style="margin-bottom: 20px;">
+		<c:if test="${post.status eq true}">
+		    <div class="col-md-4 col-md-offset-8" style="text-align: right;">
+				<button class="btn btn-success" id="cancel_del_btn">삭제취소</button>
+			</div> 
+		</c:if>
+		<c:if test="${post.status eq false}">
+			<div class="col-md-4 col-md-offset-8" style="text-align: right;">
+				<button class="btn btn-success" id="modify_btn">수정</button>
+				<button class="btn btn-danger" data-toggle="modal" data-target="#myModal">삭제</button>
+			</div>    
+		</c:if>
+	</div>
+	<article class="entry">
+		<div class="titleArea">
+			<div class="title" id="article_title">${post.title}</div>
+			<hr class="titileHr">
+			<div class="categoryArea">
+				<a href="./list.html?type=category&id=${post.categoryId}" id="article_list_link">${post.category}</a> &nbsp;${post.date}
+			</div>
+		</div>
+		<div class="article">
+			<div class="tt_article_useless_p_margin" id="article_contents">${post.contents}</div>
+			<hr />
+			<div class="list-meta ie-dotum">
+				<a href="${post.postUrl}" target="_blank" class="p-category ci-color">블로그 원본 링크</a> <br /> <span class="timeago ff-h dt-published tag-column" id="article_tag">${post.tags}</span>
+			</div>
+		</div>
+	</article>
+	<input type="hidden" id="idx" value="${post.idx}">
+	<input type="hidden" id="postId" value="${post.postId }">
+	<input type="hidden" id="mode" value="view">
 </div>
-<article class="entry">
-	<div class="titleArea">
-		<div class="title" id="article_title">${post.title}</div>
-		<hr class="titileHr">
-		<div class="categoryArea">
-			<a href="./list.html?type=category&id=${post.categoryId}" id="article_list_link">${post.category}</a> &nbsp;${post.date}
-		</div>
-	</div>
-	<div class="article">
-		<div class="tt_article_useless_p_margin" id="article_contents">${post.contents}</div>
-		<hr />
-		<div class="list-meta ie-dotum">
-			<a href="${post.postUrl}" target="_blank" class="p-category ci-color">블로그 원본 링크</a> <br /> <span class="timeago ff-h dt-published tag-column" id="article_tag">${post.tags}</span>
-		</div>
-	</div>
-</article>
-<input type="hidden" id="idx" value="${post.idx}">
-<input type="hidden" id="postId" value="${post.postId }">
-<input type="hidden" id="mode" value="view">
 <jsp:include page="./particle/bottom.jsp"></jsp:include>
-<!-- https://summernote.org/getting-started/ -->
 <script>
 	var _post$ = (function(obj) {
 		obj.init();
@@ -105,13 +106,13 @@
 				_common$.loading.on();
 				var mode = $("#mode").val();
 				if ("view" === mode) {
-					var title = $("#article_title").html();
+					var title = $("#article_title").text();
 					$("#article_title").html("");
 					$("#article_title").append($("<input type='text' class='form-control' id='title_txt'>").val(title));
 					$('#article_contents').summernote({
 						height : $("#article_contents").height() + 100
 					});
-					var tag = $("#article_tag").html();
+					var tag = $("#article_tag").text();
 					$("#article_tag").html("");
 					$("#article_tag").append($("<input type='text' class='form-control' id='tag_txt'>").val(tag));
 					$("#mode").val("edit");
