@@ -1,6 +1,7 @@
 package Controller.Ajax;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -9,7 +10,8 @@ import javax.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
-
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.multipart.MultipartFile;
 import Bean.AttachmentBean;
 import Bean.AttachmentListBean;
 import Bean.ListBean;
@@ -34,14 +36,14 @@ import Model.Post;
 
 @Controller
 public class AjaxController extends AbstractAjaxController {
-	@RequestMapping(value = "/sync.ajax")
+	@RequestMapping(value = "/sync.ajax", method = RequestMethod.POST)
 	public void sync(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
 		getLogger().info("[sync] request!");
 		BlogApiThread.instance().run();
 		OKAjax(res);
 	}
 
-	@RequestMapping(value = "/syncStatus.ajax")
+	@RequestMapping(value = "/syncStatus.ajax", method = RequestMethod.POST)
 	public void syncStatus(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
 		// getLogger().info("[syncStatus] request!");
 		SyncStateBean bean = new SyncStateBean();
@@ -51,14 +53,14 @@ public class AjaxController extends AbstractAjaxController {
 		returnJson(res, bean);
 	}
 
-	@RequestMapping(value = "/menu.ajax")
+	@RequestMapping(value = "/menu.ajax", method = RequestMethod.POST)
 	public void menu(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
 		getLogger().info("[menu] request!");
 		List<MenuBean> list = MenuBuilder.get().getMenu();
 		returnJson(res, list);
 	}
 
-	@RequestMapping(value = "/list.ajax")
+	@RequestMapping(value = "/list.ajax", method = RequestMethod.POST)
 	public void list(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
 		getLogger().info("[list] request!");
 		try {
@@ -68,7 +70,7 @@ public class AjaxController extends AbstractAjaxController {
 			getLogger().info("[list] type :" + type);
 			getLogger().info("[list] id :" + id);
 			getLogger().info("[list] page :" + page);
-			if (type == null || id == null || page == null) {
+			if (Util.StringIsEmptyOrNull(type) || Util.StringIsEmptyOrNull(id) || Util.StringIsEmptyOrNull(page)) {
 				throw new RuntimeException();
 			}
 			int pagenumber = Integer.parseInt(page);
@@ -122,7 +124,7 @@ public class AjaxController extends AbstractAjaxController {
 		return ret;
 	}
 
-	@RequestMapping(value = "/modifyPost.ajax")
+	@RequestMapping(value = "/modifyPost.ajax", method = RequestMethod.POST)
 	public void modifyPost(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
 		getLogger().info("[modifyPost] request!");
 		try {
@@ -137,7 +139,7 @@ public class AjaxController extends AbstractAjaxController {
 			getLogger().info("[modifyPost] title :" + title);
 			getLogger().info("[modifyPost] contents :" + contents);
 			getLogger().info("[modifyPost] tags :" + tags);
-			if (idx == null || postId == null || title == null || contents == null) {
+			if (Util.StringIsEmptyOrNull(idx) || Util.StringIsEmptyOrNull(postId) || Util.StringIsEmptyOrNull(title) || Util.StringIsEmptyOrNull(contents)) {
 				throw new RuntimeException();
 			}
 			int pIdx = Integer.parseInt(idx);
@@ -180,7 +182,7 @@ public class AjaxController extends AbstractAjaxController {
 		}
 	}
 
-	@RequestMapping(value = "/deletePost.ajax")
+	@RequestMapping(value = "/deletePost.ajax", method = RequestMethod.POST)
 	public void deletePost(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
 		getLogger().info("[deletePost] request!");
 		try {
@@ -188,7 +190,7 @@ public class AjaxController extends AbstractAjaxController {
 			String postId = req.getParameter("postId");
 			getLogger().info("[deletePost] idx :" + idx);
 			getLogger().info("[deletePost] postId :" + postId);
-			if (idx == null || postId == null) {
+			if (Util.StringIsEmptyOrNull(idx) || Util.StringIsEmptyOrNull(postId)) {
 				throw new RuntimeException();
 			}
 			int pIdx = Integer.parseInt(idx);
@@ -208,7 +210,7 @@ public class AjaxController extends AbstractAjaxController {
 		}
 	}
 
-	@RequestMapping(value = "/cancelDeletePost.ajax")
+	@RequestMapping(value = "/cancelDeletePost.ajax", method = RequestMethod.POST)
 	public void cancelDeletePost(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
 		getLogger().info("[cancelDeletePost] request!");
 		try {
@@ -216,7 +218,7 @@ public class AjaxController extends AbstractAjaxController {
 			String postId = req.getParameter("postId");
 			getLogger().info("[cancelDeletePost] idx :" + idx);
 			getLogger().info("[cancelDeletePost] postId :" + postId);
-			if (idx == null || postId == null) {
+			if (Util.StringIsEmptyOrNull(idx) || Util.StringIsEmptyOrNull(postId)) {
 				throw new RuntimeException();
 			}
 			int pIdx = Integer.parseInt(idx);
@@ -236,7 +238,7 @@ public class AjaxController extends AbstractAjaxController {
 		}
 	}
 
-	@RequestMapping(value = "/createPost.ajax")
+	@RequestMapping(value = "/createPost.ajax", method = RequestMethod.POST)
 	public void createPost(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
 		getLogger().info("[createPost] request!");
 		try {
@@ -248,7 +250,7 @@ public class AjaxController extends AbstractAjaxController {
 			getLogger().info("[createPost] category :" + category);
 			getLogger().info("[createPost] contents :" + contents);
 			getLogger().info("[createPost] tags :" + tags);
-			if (title == null || category == null) {
+			if (Util.StringIsEmptyOrNull(title) || Util.StringIsEmptyOrNull(category)) {
 				throw new RuntimeException();
 			}
 			int categoryIdx = Integer.parseInt(category);
@@ -299,7 +301,7 @@ public class AjaxController extends AbstractAjaxController {
 		}
 	}
 
-	@RequestMapping(value = "/getWaitlist.ajax")
+	@RequestMapping(value = "/getWaitlist.ajax", method = RequestMethod.POST)
 	public void getWaitlist(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
 		getLogger().info("[getWaitlist] request!");
 		try {
@@ -318,7 +320,7 @@ public class AjaxController extends AbstractAjaxController {
 		}
 	}
 
-	@RequestMapping(value = "/initWaitlist.ajax")
+	@RequestMapping(value = "/initWaitlist.ajax", method = RequestMethod.POST)
 	public void initWaitlist(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
 		getLogger().info("[initWaitlist] request!");
 		try {
@@ -339,13 +341,13 @@ public class AjaxController extends AbstractAjaxController {
 		}
 	}
 
-	@RequestMapping(value = "/deleteList.ajax")
+	@RequestMapping(value = "/deleteList.ajax", method = RequestMethod.POST)
 	public void deleteList(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
 		getLogger().info("[initWaitlist] request!");
 		try {
 			String page = req.getParameter("page");
 			getLogger().info("[deleteList] page :" + page);
-			if (page == null) {
+			if (Util.StringIsEmptyOrNull(page)) {
 				getLogger().error("[deleteList] The page is null.");
 				throw new RuntimeException();
 			}
@@ -369,13 +371,50 @@ public class AjaxController extends AbstractAjaxController {
 				AttachmentBean bean = new AttachmentBean();
 				ret.getData().add(bean);
 				bean.setIdx(item.getIdx());
-				bean.setPostId(item.getPostId());
 				bean.setLink(item.getLink());
-				bean.setObjectData("");
+				bean.setObjectData(String.valueOf(item.getIdx()));
 				bean.setDate(Util.convertDateFormat(item.getCreateddate()));
-				bean.setState("");
+				if (Util.StringIsEmptyOrNull(item.getLink()) || item.getData() == null) {
+					bean.setState(String.valueOf(item.getIdx()));
+				}
 			}
 			returnJson(res, ret);
+		} catch (Throwable e) {
+			getLogger().error("[attachmentList]", e);
+			res.setStatus(406);
+		}
+	}
+
+	@RequestMapping(value = "/applyAttachment.ajax", method = RequestMethod.POST)
+	public void applyAttachment(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res, MultipartFile file) {
+		getLogger().info("[applyAttachment] request!");
+		try {
+			String type = req.getParameter("type");
+			String link = req.getParameter("link");
+			String memo = req.getParameter("memo");
+			String data = req.getParameter("data");
+
+			if (Util.StringIsEmptyOrNull(type)) {
+				getLogger().error("[applyAttachment] The type is null.");
+				throw new RuntimeException();
+			}
+			if (Util.StringIsEmptyOrNull(link) && Util.StringIsEmptyOrNull(data)) {
+				getLogger().error("[applyAttachment] The type is null.");
+				throw new RuntimeException();
+			}
+			Attachment attach = new Attachment();
+			attach.setLink(link);
+			if (data != null) {
+				String[] buffer = data.split(",");
+				if (buffer.length == 2) {
+					attach.setData(Base64.getDecoder().decode(buffer[1]));
+				}
+			}
+			attach.setMemo(memo);
+			attach.setIsdeleted(false);
+			attach.setCreateddate(new Date());
+			FactoryDao.getDao(AttachmentDao.class).create(attach);
+			OKAjax(res, "등록 되었습니다.");
 		} catch (Throwable e) {
 			getLogger().error("[attachmentList]", e);
 			res.setStatus(406);

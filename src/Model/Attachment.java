@@ -16,20 +16,15 @@ public class Attachment implements Serializable {
 
 	private String link;
 
+	private String memo;
+
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createddate;
 
 	@Lob
 	private byte[] data;
 
-	@Column(name = "POST_ID")
-	private String postId;
-
 	private boolean isdeleted;
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "POST_IDX")
-	private Post post;
 
 	public Attachment() {
 	}
@@ -66,14 +61,6 @@ public class Attachment implements Serializable {
 		this.isdeleted = isdeleted;
 	}
 
-	public Post getPost() {
-		return this.post;
-	}
-
-	public void setPost(Post post) {
-		this.post = post;
-	}
-
 	public String getLink() {
 		return this.link;
 	}
@@ -82,11 +69,11 @@ public class Attachment implements Serializable {
 		this.link = link;
 	}
 
-	public String getPostId() {
-		return this.postId;
+	public String getMemo() {
+		return this.memo;
 	}
 
-	public void setPostId(String postId) {
-		this.postId = postId;
+	public void setMemo(String memo) {
+		this.memo = memo;
 	}
 }

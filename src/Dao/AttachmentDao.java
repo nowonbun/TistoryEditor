@@ -31,4 +31,12 @@ public class AttachmentDao extends TransactionDao<Attachment> {
 		});
 	}
 
+	public byte[] getFileData(int idx) {
+		return transaction((em) -> {
+			Query query = em.createQuery("SELECT a.data FROM Attachment a where a.idx=:idx");
+			query.setParameter("idx", idx);
+			return (byte[]) query.getSingleResult();
+		});
+	}
+
 }

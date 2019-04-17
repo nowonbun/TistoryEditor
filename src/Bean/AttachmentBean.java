@@ -2,7 +2,6 @@ package Bean;
 
 public class AttachmentBean {
 	private int idx;
-	private String postId;
 	private String link;
 	private String objectData;
 	private String date;
@@ -14,14 +13,6 @@ public class AttachmentBean {
 
 	public void setIdx(int idx) {
 		this.idx = idx;
-	}
-
-	public String getPostId() {
-		return postId;
-	}
-
-	public void setPostId(String postId) {
-		this.postId = postId;
 	}
 
 	public String getLink() {

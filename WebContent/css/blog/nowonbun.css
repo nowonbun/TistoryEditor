@@ -603,6 +603,7 @@ main {
 
 main div.main-container {
 	/*margin: 0px 15px;*/
+	
 }
 /*메인타이틀*/
 main div.title {
@@ -852,4 +853,14 @@ p.image>span {
 div.adsenseHeadDefault, div.adsenseFootDefault, div.adsenseHead, div.adsenseFoot
 	{
 	margin: 20px 0px;
+}
+
+.page-title {
+	margin-bottom: 20px;
+	border-bottom: 1px solid #e3e3e3;
+}
+
+.page-title h3 {
+	border-left: 5px solid #000;
+	padding-left: 20px;
 }

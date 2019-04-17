@@ -35,13 +35,16 @@
 </div>
 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 	<div class="row" style="margin-bottom: 20px;">
+		<div class="col-md-4">
+			<label>PostID : ${post.postId}</label>
+		</div>
 		<c:if test="${post.status eq true}">
-		    <div class="col-md-4 col-md-offset-8" style="text-align: right;">
+		    <div class="col-md-4 col-md-offset-4" style="text-align: right;">
 				<button class="btn btn-success" id="cancel_del_btn">삭제취소</button>
 			</div> 
 		</c:if>
 		<c:if test="${post.status eq false}">
-			<div class="col-md-4 col-md-offset-8" style="text-align: right;">
+			<div class="col-md-4 col-md-offset-4" style="text-align: right;">
 				<button class="btn btn-success" id="modify_btn">수정</button>
 				<button class="btn btn-danger" data-toggle="modal" data-target="#myModal">삭제</button>
 			</div>    
@@ -64,7 +67,7 @@
 		</div>
 	</article>
 	<input type="hidden" id="idx" value="${post.idx}">
-	<input type="hidden" id="postId" value="${post.postId }">
+	<input type="hidden" id="postId" value="${post.postId}">
 	<input type="hidden" id="mode" value="view">
 </div>
 <jsp:include page="./particle/bottom.jsp"></jsp:include>

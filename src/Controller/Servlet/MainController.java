@@ -3,6 +3,8 @@ package Controller.Servlet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -17,6 +19,7 @@ import Common.Define;
 import Common.FactoryDao;
 import Common.JsonConverter;
 import Common.Util;
+import Dao.AttachmentDao;
 import Dao.BlogDao;
 import Dao.CategoryDao;
 import Dao.PostDao;
@@ -182,10 +185,10 @@ public class MainController extends AbstractServletController {
 			return error();
 		}
 	}
-	
+
 	@RequestMapping(value = "/attachmentFile.html", method = RequestMethod.GET)
 	public String attachmentFile(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
-		
+
 		return "attachmentFile";
 	}
 
@@ -194,5 +197,23 @@ public class MainController extends AbstractServletController {
 		getLogger().info("[error] request!");
 		modelmap.addAttribute("message", "에러가 발생했습니다.<br />관리자에게 문의해 주십시오.");
 		return "error";
+	}
+
+	@RequestMapping(value = "/getAttachment.html", method = RequestMethod.GET)
+	public void getAttachment(ModelMap modelmap, HttpSession session, HttpServletRequest req, HttpServletResponse res) {
+		getLogger().info("[getAttachment] request!");
+		try {
+			String idx = req.getParameter("idx");
+			getLogger().info("[getAttachment] idx :" + idx);
+			int pIdx = Integer.parseInt(idx);
+			byte[] data = FactoryDao.getDao(AttachmentDao.class).getFileData(pIdx);
+			res.setContentType("application/octet-stream;charset=UTF-8");
+			try (ServletOutputStream output = res.getOutputStream()) {
+				output.write(data);
+			}
+		} catch (Throwable e) {
+			getLogger().error("[getAttachment]", e);
+			res.setStatus(404);
+		}
 	}
 }

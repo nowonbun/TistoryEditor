@@ -3,7 +3,6 @@ package Model;
 import java.io.Serializable;
 import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
 
 @Entity
 @Table(name = "tsn_post")
@@ -53,9 +52,6 @@ public class Post implements Serializable {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "CATEGORY_IDX")
 	private Category category;
-
-	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	private List<Attachment> attachments;
 
 	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinColumn(name = "CONTENTS_IDX")
@@ -182,28 +178,6 @@ public class Post implements Serializable {
 
 	public void setLastupdateddate(Date lastupdateddate) {
 		this.lastupdateddate = lastupdateddate;
-	}
-
-	public List<Attachment> getAttachments() {
-		return this.attachments;
-	}
-
-	public void setAttachments(List<Attachment> attachments) {
-		this.attachments = attachments;
-	}
-
-	public Attachment addAttachment(Attachment attachment) {
-		getAttachments().add(attachment);
-		attachment.setPost(this);
-
-		return attachment;
-	}
-
-	public Attachment removeAttachment(Attachment attachment) {
-		getAttachments().remove(attachment);
-		attachment.setPost(null);
-
-		return attachment;
 	}
 
 	public Content getContent() {
